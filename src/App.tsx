@@ -1,15 +1,30 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import './App.css'
+import SideBar from "./components/sidebar/SideBar";
+import { Dashboard } from "./pages/Dashboard";
+import MainLayout from "./components/layout/Mainlayout";
+import { Property } from "./pages/Property";
+
 
 function App() {
-
   return (
-    <>
-      <div>
-        <h1 className='text-6xl text-red-600'>Olajide</h1>
-      </div>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route
+          element={
+            <SideBar>
+              <MainLayout />
+            </SideBar>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/property" element={<Property />} />
+          
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
