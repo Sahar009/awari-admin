@@ -46,7 +46,7 @@ const SideBar = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col transition-all duration-500 bg-purple-100 ">
+      <div className="flex-1 flex flex-col transition-all duration-500 bg-purple-50 ">
         {/* Header always on top */}
         <Header />
 

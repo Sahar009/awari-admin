@@ -18,29 +18,34 @@ const menu = [
     icon: <BarChart2 className="w-5 h-5" />,
     path: "/property"
   },
+   {
+    title: "Users",
+    icon: <UserPlus className="w-5 h-5" />,
+     childrens: [
+      { title: "Vendor", path: "/Vendor" },
+      { title: "Customer", path: "/Customer" },
+    ],
+  },
   {
     title: "Report Bug",
     icon: <MessageCircle className="w-5 h-5" />,
     path: "/contact-us",
   },
   {
-    title: "Property",
-    icon: <UserPlus className="w-5 h-5" />,
-    path: "/add-student",
-  },
-  {
     title: "Students",
     icon: <Users className="w-5 h-5 " />,
      childrens: [
-      { title: "Profile", path: "/profile" },
-      { title: "Edit Profile", path: "/edit-profile" },
+      { title: "Vendor", path: "/Vendor" },
+      { title: "Customer", path: "/Customer" },
     ],
   },
   {
     title: "Attendance",
     icon: <FileBarChart className="w-5 h-5" />,
     path: "/attendance",
-  },
+  },{
+    
+  }
  
 ];
 

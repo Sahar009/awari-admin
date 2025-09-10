@@ -4,6 +4,9 @@ import SideBar from "./components/sidebar/SideBar";
 import { Dashboard } from "./pages/Dashboard";
 import MainLayout from "./components/layout/Mainlayout";
 import { Property } from "./pages/Property";
+import Vendor from "./pages/users/Vendor";
+import Customer  from "./pages/users/Customer";
+import ViewVendors from "./pages/users/ViewVendors";
 
 
 function App() {
@@ -20,6 +23,9 @@ function App() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/property" element={<Property />} />
+          <Route path="/vendor" element={<Vendor/>} />
+          <Route path="/customer" element={<Customer/>} />
+          <Route path="/Vendor-Details" element={<ViewVendors/>} />
           
         </Route>
       </Routes>
