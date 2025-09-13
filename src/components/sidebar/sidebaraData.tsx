@@ -32,20 +32,15 @@ const menu = [
     path: "/contact-us",
   },
   {
-    title: "Students",
-    icon: <Users className="w-5 h-5 " />,
-     childrens: [
-      { title: "Vendor", path: "/Vendor" },
-      { title: "Customer", path: "/Customer" },
-    ],
-  },
-  {
-    title: "Attendance",
+    title: "Content Management",
     icon: <FileBarChart className="w-5 h-5" />,
-    path: "/attendance",
-  },{
-    
-  }
+    path: "/content-management",
+  }, 
+  {
+    title: "My Account",
+    icon: <Users className="w-5 h-5 " />,
+    path: "/my-account"
+  },
  
 ];
 

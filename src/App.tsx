@@ -7,6 +7,7 @@ import { Property } from "./pages/Property";
 import Vendor from "./pages/users/Vendor";
 import Customer  from "./pages/users/Customer";
 import ViewVendors from "./pages/users/ViewVendors";
+import MyAccount from "./pages/MyAccount";
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/vendor" element={<Vendor/>} />
           <Route path="/customer" element={<Customer/>} />
           <Route path="/Vendor-Details" element={<ViewVendors/>} />
+          <Route path="/my-account" element={<MyAccount/>} />
           
         </Route>
       </Routes>
