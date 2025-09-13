@@ -4,7 +4,7 @@ const PropertyPieChart = () => {
   const options: ApexCharts.ApexOptions = {
     chart: {
       type: "pie",
-      height: "100%", // let it fill container
+      height: "100%", 
       width: "100%",
     },
     labels: ["Rent", "Sales", "Apartments"],

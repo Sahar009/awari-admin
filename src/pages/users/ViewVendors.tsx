@@ -75,16 +75,46 @@ const ViewVendors = () => {
           }`}
         >
           <div className="p-4">
-            <div className="">
+            <div className="w-[60%]">
               <h1>Vendor Bio data</h1>
-               <div className="">
-
+               <div className="flex flex-col gap-2  items-start text-lg w-full">
+                  <div className=" flex flex-row gap-4">
+                    <p className="font-light">Vendor name:</p>
+                    <p className="font-semibold ">Jendo Real Estate</p>
+                  </div>
+                  <div className=" flex flex-row gap-4 ">
+                    <p className="font-light">email</p>
+                    <p className="font-semibold ">Jendo Real Estate</p>
+                  </div>
+                   <div className=" flex flex-row gap-4">
+                    <p className="font-light">Location</p>
+                    <p className="font-semibold ">Jendo Real Estate</p>
+                  </div>
+                  <div className=" flex flex-row gap-4 ">
+                    <p className="font-light">Verification Status</p>
+                    <p className="font-semibold ">Jendo Real Estate</p>
+                  </div>
+                   <div className=" flex flex-row gap-4">
+                    <p className="font-light">Vendor name:</p>
+                    <p className="font-semibold ">Jendo Real Estate</p>
+                  </div>
+                  <div className=" flex flex-row gap-4 ">
+                    <p className="font-light">Vendor name</p>
+                    <p className="font-semibold ">Jendo Real Estate</p>
+                  </div>
                </div>
             </div>
+
+
+            <div className="p w-[70%]">
+              <div className="">
+                <h1>Transcation History</h1>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        {/* Verification */}
         <div
           className={`transition-all duration-300 ease-in-out ${
             activeTab === "verification" ? "opacity-100 translate-x-0 block" : "opacity-0 -translate-x-4 hidden"
