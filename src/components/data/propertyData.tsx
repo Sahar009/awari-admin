@@ -16,6 +16,7 @@ interface propertyProps {
   PropertyType: "rent" | "sales" | "shortlet";
   location: string;
   price: string | number;
+  date: string;
 }
 
 export const propertyData: propertyProps[] = [
@@ -27,6 +28,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "sales",
     location: "Lagos",
     price: "$250,000",
+    date: "15/6/2025"
   },
   {
     id: 2,
@@ -36,6 +38,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "rent",
     location: "Abuja",
     price: "$800/month",
+    date: "15/6/2025"
   },
   {
     id: 3,
@@ -45,6 +48,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "shortlet",
     location: "Port Harcourt",
     price: "$50/night",
+    date: "15/6/2025"
   },
   {
     id: 4,
@@ -54,6 +58,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "sales",
     location: "Ibadan",
     price: "$120,000",
+    date: "15/6/2025"
   },
   {
     id: 5,
@@ -63,6 +68,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "rent",
     location: "Lagos",
     price: "$400/month",
+    date: "15/6/2025"
   },
   {
     id: 6,
@@ -72,6 +78,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "shortlet",
     location: "Abuja",
     price: "$60/night",
+    date: "15/6/2025"
   },
   {
     id: 7,
@@ -81,6 +88,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "sales",
     location: "Lagos",
     price: "$180,000",
+    date: "15/6/2025"
   },
   {
     id: 8,
@@ -90,6 +98,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "rent",
     location: "Benin City",
     price: "$500/month",
+    date: "15/6/2025"
   },
   {
     id: 9,
@@ -99,6 +108,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "shortlet",
     location: "Warri",
     price: "$70/night",
+    date: "15/6/2025"
   },
   {
     id: 10,
@@ -108,6 +118,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "sales",
     location: "Akure",
     price: "$200,000",
+    date: "15/6/2025"
   },
    {
     id: 9,
@@ -117,6 +128,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "shortlet",
     location: "Warri",
     price: "$70/night",
+    date: "15/6/2025"
   },
   {
     id: 10,
@@ -126,6 +138,7 @@ export const propertyData: propertyProps[] = [
     PropertyType: "sales",
     location: "Akure",
     price: "$200,000",
+    date: "15/6/2025"
   },
 ];
 
@@ -136,19 +149,13 @@ export const propertyOverviewData: (CardProps & {
     color: string;
     bgColor: string;
   })[] = [
-    {
-      icon: <ClockIcon size={20} />,
-      value: 35,
-      label: "Pending Approval",
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
-    },
+    
     {
       icon: <HomeIcon size={20} />,
       value: 1540,
       label: "Total Properties",
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-100",
+      color: "text-orange-600",
+      bgColor: "bg-orange-100",
     },
     {
       icon: <HousePlug size={20} />,
@@ -168,22 +175,29 @@ export const propertyOverviewData: (CardProps & {
       icon: <HomeIcon size={20} />,
       value: 320,
       label: "Shortlet Properties",
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-100",
+      color: "text-green-900",
+      bgColor: "bg-green-300",
     },
     {
       icon: <CheckCircleIcon size={20} />,
       value: 210,
       label: "Active Shortlets",
-      color: "text-pink-600",
-      bgColor: "bg-pink-100",
+      color: "text-blue-900",
+      bgColor: "bg-blue-300",
     },
     {
       icon: <HomeIcon size={20} />,
       value: 400,
       label: "Sold / Rented Properties",
-      color: "text-fuchsia-600",
-      bgColor: "bg-fuchsia-100",
+      color: "text-fuchsia-900",
+      bgColor: "bg-fuchsia-200",
+    },
+    {
+      icon: <ClockIcon size={20} />,
+      value: 35,
+      label: "Pending Approval",
+      color: "text-red-900",
+      bgColor: "bg-red-300",
     },
     {
       icon: <StarIcon size={20} />,

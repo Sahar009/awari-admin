@@ -5,81 +5,12 @@ import SearchInput from "../components/ui/SearchInput";
 import {
   propertyData,
   propertyOverviewData,
-} from "../components/data/propertyData";
+} from "../components/data/propertyData"
+import { ReviewModal } from "../components/ReviewModal";
+import { GemIcon } from "lucide-react";
 
 // Modal Component (simple Tailwind only)
-const ReviewModal = ({ property, onClose, onApprove, onDeny }: any) => {
-  if (!property) return null;
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-        >
-          ✕
-        </button>
-
-        <h2 className="text-2xl font-bold mb-4">Review Property Listing</h2>
-
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold">{property.propertyTitle}</h3>
-          <p className="text-gray-600">
-            <span className="font-medium">Vendor:</span> {property.vendor}
-          </p>
-          <p className="text-gray-600">
-            <span className="font-medium">Type:</span> {property.PropertyType}
-          </p>
-          <p className="text-gray-600">
-            <span className="font-medium">Location:</span> {property.location}
-          </p>
-          <p className="text-gray-600">
-            <span className="font-medium">Price:</span> {property.price}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3 mt-4">
-          {property.images?.map((img: string, i: number) => (
-            <img
-              key={i}
-              src={img}
-              alt="Property"
-              className="rounded-lg border h-28 object-cover"
-            />
-          ))}
-        </div>
-
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-              onDeny(property.id);
-              onClose();
-            }}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-          >
-            Deny
-          </button>
-          <button
-            onClick={() => {
-              onApprove(property.id);
-              onClose();
-            }}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
-            Approve
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export const Property = () => {
   const [tab, setTab] = useState<"overview" | "pending" | "featured">("overview");
@@ -138,8 +69,8 @@ export const Property = () => {
 
       {/* Tabs */}
 
-      <div className="bg-white p-6">
-      <div className="flex gap-4 border-b">
+      <div className="bg-white p-6 space-y-6">
+      <div className="flex gap-4 border-b border-purple-100">
         <button
           onClick={() => setTab("overview")}
           className={`px-4 py-2 ${
@@ -188,6 +119,7 @@ export const Property = () => {
             <div className="w-32">Type</div>
             <div className="w-40">Location</div>
             <div className="w-32">Price</div>
+            <div className="w-32"> Date Posted</div>
             <div className="w-28">Action</div>
           </div>
 
@@ -201,19 +133,22 @@ export const Property = () => {
                 <div className="w-10 text-sm text-gray-700">{property.id}</div>
 
                 <div className="w-60 flex items-center gap-2">
-                  <div className="w-12 h-10 rounded-sm overflow-hidden">
+                  <div className="w-12 h-10 rounded-sm overflow-hidden relative">
                     <img
                       className="w-full h-full object-cover"
                       src={property.img}
                       alt={property.propertyTitle}
                     />
+                  {featured.includes(property.id) && (   
+                    <div className=" absolute top-0 left-0 z-50  rounded-full text-orange-500 bg-white"><GemIcon size={15}/></div>
+                     )}
                   </div>
                   <p className="text-sm text-gray-700 ">
                     {property.propertyTitle}
                   </p>
-                  {featured.includes(property.id) && (
-                    <span className="text-blue-500">😋</span>
-                  )}
+                  
+                   
+                 
                 </div>
 
                 <div className="w-40 text-sm text-gray-700">
@@ -227,6 +162,9 @@ export const Property = () => {
                 </div>
                 <div className="w-32 text-sm text-gray-700">
                   {property.price}
+                </div>
+                <div className="w-32 text-sm text-gray-700">
+                  {property.date}
                 </div>
                 <div className="w-28 text-sm text-blue-500 flex gap-2">
                   {tab === "overview" && (

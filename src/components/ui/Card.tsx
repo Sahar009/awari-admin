@@ -13,7 +13,7 @@ export const Card: React.FC<CardProps> = ({
   icon,
   value,
   label,
-  bgColor = "bg-purple-200 text-purple-700", // default
+  bgColor,
   color = "text-gray-600", // default
 }) => {
   return (
