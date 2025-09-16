@@ -8,8 +8,11 @@ import Vendor from "./pages/users/Vendor";
 import Customer  from "./pages/users/Customer";
 import ViewVendors from "./pages/users/ViewVendors";
 import MyAccount from "./pages/MyAccount";
-import RatingPage from "./pages/users/RatingPage";
-import PropertiesPage from "./pages/users/RatingPage";
+
+import ReviewsReports from "./pages/ReviewsReport";
+import FaqAnnoucement from "./pages/FaqAnnoucement";
+import Blog from "./pages/Blog";
+import { About } from "./pages/About";
 
 
 function App() {
@@ -29,7 +32,11 @@ function App() {
           <Route path="/vendor" element={<Vendor/>} />
           <Route path="/customer" element={<Customer/>} />
           <Route path="/Vendor-Details" element={<ViewVendors/>} />
-          <Route path="/my-account" element={<PropertiesPage/>} />
+          <Route path="/my-account" element={<MyAccount/>} />
+          <Route path="/review" element={<ReviewsReports/>}  />
+          <Route path="/faq-annoucement" element={<FaqAnnoucement/>}  />
+          <Route path="/blog" element={<Blog/>}  />
+          <Route path="/about" element={<About/>}  />
           
         </Route>
       </Routes>

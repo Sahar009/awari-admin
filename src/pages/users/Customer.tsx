@@ -47,8 +47,7 @@ const Customer = () => {
               <th className="py-3 px-4">Email Address</th>
               <th className="py-3 px-4">Location</th>
               <th className="py-3 px-4">Date Joined</th>
-              <th className="py-3 px-4">Rating</th>
-              <th className="py-3 px-4">Reviews</th>
+              
               <th className="py-3 px-4">Status</th>
               <th className="py-3 px-4"></th>
             </tr>
@@ -70,13 +69,7 @@ const Customer = () => {
                 <td className="py-3 px-4 text-gray-700">{vendor.email}</td>
                 <td className="py-3 px-4 text-gray-700">{vendor.location}</td>
                 <td className="py-3 px-4 text-gray-700">{vendor.dateJoined}</td>
-                <td className="py-3 px-4">
-                  <RatingStars
-                    value={vendor.rating}
-                    onChange={(val) => handleRate(vendor.id, val)}
-                  />
-                </td>
-                <td className="py-3 px-4">{vendor.reviews}</td>
+                
                 <td className="py-3 px-4">
                   <span
                     className={`px-2 py-1 rounded text-xs font-medium ${

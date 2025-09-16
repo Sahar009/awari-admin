@@ -27,14 +27,18 @@ const menu = [
     ],
   },
   {
-    title: "Report Bug",
+    title: "Review & Report Bug",
     icon: <MessageCircle className="w-5 h-5" />,
-    path: "/contact-us",
+    path: "/review",
   },
   {
     title: "Content Management",
     icon: <FileBarChart className="w-5 h-5" />,
-    path: "/content-management",
+     childrens: [
+      { title: "Faq & Annoucements", path: "/faq-annoucement" },
+       { title: "Blog", path: "/blog" },
+      { title: "About", path: "/about" },
+    ],
   }, 
   {
     title: "My Account",
