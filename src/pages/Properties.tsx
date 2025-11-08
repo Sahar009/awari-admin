@@ -70,6 +70,9 @@ const PropertiesPage = () => {
   }, [filters, page]);
 
   const { data, isLoading, isFetching } = useAdminProperties(queryParams);
+  const properties: AdminProperty[] = data?.properties ?? [];
+  const summary = data?.summary;
+  const pagination = data?.pagination;
   const statusMutation = useAdminPropertyStatusMutation();
   const featureMutation = useAdminPropertyFeatureMutation();
   const { data: detailData, isLoading: isDetailLoading } = useAdminPropertyDetail(
@@ -216,15 +219,15 @@ const PropertiesPage = () => {
         </div>
       ) : null}
 
-      <PropertySummary summary={data?.summary} isLoading={isLoading && !data} />
+      <PropertySummary summary={summary} isLoading={isLoading && !data} />
 
       <PropertyFilters filters={filters} onChange={handleFilterChange} onReset={handleResetFilters} />
 
       <PropertyTable
-        properties={data?.properties ?? []}
+        properties={properties}
         isLoading={isLoading}
         isFetching={isFetching}
-        pagination={data?.pagination}
+        pagination={pagination}
         currentPage={page}
         pageSize={PAGE_SIZE}
         onPageChange={setPage}

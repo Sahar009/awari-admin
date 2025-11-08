@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Banknote, CreditCard, Filter, Loader, RefreshCw } from 'lucide-react';
 import { useTransactions } from '../hooks/useTransactions';
+import type { AdminTransaction } from '../services/types';
 import { ActionButton } from '../components/ui/ActionButton';
 
 const formatCurrency = (value?: number, currency = 'NGN') => {
@@ -81,7 +82,7 @@ const TransactionsPage = () => {
 
   const pagination = data?.pagination;
   const summary = data?.summary;
-  const transactions = data?.transactions ?? [];
+  const transactions: AdminTransaction[] = data?.transactions ?? [];
 
   const statusBreakdown = useMemo<Record<string, number>>(
     () => summary?.statusBreakdown ?? {},
@@ -153,7 +154,7 @@ const TransactionsPage = () => {
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Status breakdown</h3>
                 <div className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
                   {Object.entries(statusBreakdown).length ? (
-                    Object.entries(statusBreakdown).map(([key, value]) => (
+                    (Object.entries(statusBreakdown) as [string, number][]).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-900/70">
                         <span className="capitalize text-slate-600 dark:text-slate-300">{key}</span>
                         <span className="font-semibold text-slate-900 dark:text-white">{value.toLocaleString()}</span>
@@ -168,7 +169,7 @@ const TransactionsPage = () => {
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Type breakdown</h3>
                 <div className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
                   {Object.entries(typeBreakdown).length ? (
-                    Object.entries(typeBreakdown).map(([key, value]) => (
+                    (Object.entries(typeBreakdown) as [string, number][]).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-900/70">
                         <span className="capitalize text-slate-600 dark:text-slate-300">{key.replace('_', ' ')}</span>
                         <span className="font-semibold text-slate-900 dark:text-white">{value.toLocaleString()}</span>

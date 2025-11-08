@@ -13,8 +13,10 @@ import { ActionButton } from '../components/ui/ActionButton';
 import SubscriptionDrawer from '../components/subscriptions/SubscriptionDrawer';
 import CreateSubscriptionDrawer from '../components/subscriptions/CreateSubscriptionDrawer';
 import type {
+  AdminSubscription,
   AdminSubscriptionCancelPayload,
   AdminSubscriptionCreatePayload,
+  AdminSubscriptionPlan,
   AdminSubscriptionRenewPayload,
   AdminSubscriptionUpdatePayload
 } from '../services/types';
@@ -84,12 +86,12 @@ const SubscriptionsPage = () => {
     search: search.trim() || undefined
   });
 
-  const { data: planList } = useSubscriptionPlans({ status: 'active', limit: 100, includeInactive: false });
-  const availablePlans = planList?.plans ?? [];
+  const { data: planListResponse } = useSubscriptionPlans({ status: 'active', limit: 100, includeInactive: false });
+  const availablePlans: AdminSubscriptionPlan[] = planListResponse?.plans ?? [];
 
   const summary = data?.summary;
   const pagination = data?.pagination;
-  const subscriptions = data?.subscriptions ?? [];
+  const subscriptions: AdminSubscription[] = data?.subscriptions ?? [];
 
   const { data: subscriptionDetail } = useSubscriptionDetail(
     selectedSubscriptionId ?? undefined,
@@ -288,7 +290,7 @@ const SubscriptionsPage = () => {
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Plan type breakdown</h3>
                 <div className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
                   {Object.entries(planBreakdown).length ? (
-                    Object.entries(planBreakdown).map(([key, value]) => (
+                    (Object.entries(planBreakdown) as [string, number][]).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-900/70">
                         <span className="capitalize text-slate-600 dark:text-slate-300">{key}</span>
                         <span className="font-semibold text-slate-900 dark:text-white">{value.toLocaleString()}</span>
@@ -303,7 +305,7 @@ const SubscriptionsPage = () => {
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Billing cycle & auto-renew</h3>
                 <div className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
                   {Object.entries(billingBreakdown).length ? (
-                    Object.entries(billingBreakdown).map(([key, value]) => (
+                    (Object.entries(billingBreakdown) as [string, number][]).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-900/70">
                         <span className="capitalize text-slate-600 dark:text-slate-300">{key}</span>
                         <span className="font-semibold text-slate-900 dark:text-white">{value.toLocaleString()}</span>
