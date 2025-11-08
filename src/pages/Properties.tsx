@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { AdminProperty } from '../services/types';
+import type { AdminProperty, AdminPropertyStatusPayload } from '../services/types';
 import {
   useAdminProperties,
   useAdminPropertyDetail,
@@ -95,7 +95,7 @@ const PropertiesPage = () => {
   const runStatusMutation = (
     property: AdminProperty,
     action: PropertyAction,
-    payload: { status: AdminProperty['status']; rejectionReason?: string; moderationNotes?: string }
+    payload: AdminPropertyStatusPayload
   ) => {
     setPendingStatusAction({ propertyId: property.id, action });
     statusMutation.mutate(

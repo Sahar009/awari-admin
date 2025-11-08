@@ -9,7 +9,13 @@ import {
   useModerationKycUpdate
 } from '../hooks/useModeration';
 import { ActionButton } from '../components/ui/ActionButton';
-import type { ModerationKycItem, ModerationKycUpdatePayload } from '../services/types';
+import type {
+  ModerationKycItem,
+  ModerationKycUpdatePayload,
+  ModerationReviewItem,
+  ModerationListingItem,
+  ModerationPaymentItem
+} from '../services/types';
 import KycDocumentDrawer from '../components/moderation/KycDocumentDrawer';
 
 const formatDate = (value?: string | null) => {
@@ -121,6 +127,11 @@ const ModerationPage = () => {
     page: paymentsPage,
     status: paymentStatus
   });
+
+  const reviews: ModerationReviewItem[] = reviewData?.reviews ?? [];
+  const listings: ModerationListingItem[] = listingData?.listings ?? [];
+  const kycDocuments: ModerationKycItem[] = kycData?.documents ?? [];
+  const payments: ModerationPaymentItem[] = paymentData?.payments ?? [];
 
   const reviewPagination = reviewData?.pagination;
   const listingPagination = listingData?.pagination;
@@ -267,8 +278,8 @@ const ModerationPage = () => {
                     <Loader className="mx-auto h-5 w-5 animate-spin text-indigo-500" />
                   </td>
                 </tr>
-              ) : reviewData?.reviews?.length ? (
-                reviewData.reviews.map((review) => (
+              ) : reviews.length ? (
+                reviews.map((review) => (
                   <tr key={review.id} className="text-sm text-slate-600 dark:text-slate-300">
                     <td className="px-4 py-4">
                       <div className="font-semibold text-slate-900 dark:text-white">
@@ -391,8 +402,8 @@ const ModerationPage = () => {
                     <Loader className="mx-auto h-5 w-5 animate-spin text-indigo-500" />
                   </td>
                 </tr>
-              ) : listingData?.listings?.length ? (
-                listingData.listings.map((listing) => (
+              ) : listings.length ? (
+                listings.map((listing) => (
                   <tr key={listing.id} className="text-sm text-slate-600 dark:text-slate-300">
                     <td className="px-4 py-4">
                       <div className="font-semibold text-slate-900 dark:text-white">{listing.title}</div>
@@ -499,8 +510,8 @@ const ModerationPage = () => {
                     <Loader className="mx-auto h-5 w-5 animate-spin text-indigo-500" />
                   </td>
                 </tr>
-              ) : kycData?.documents?.length ? (
-                kycData.documents.map((doc) => (
+              ) : kycDocuments.length ? (
+                kycDocuments.map((doc) => (
                   <tr key={doc.id} className="text-sm text-slate-600 dark:text-slate-300">
                     <td className="px-4 py-4">
                       <div className="font-semibold text-slate-900 dark:text-white">{doc.documentType}</div>
@@ -599,8 +610,8 @@ const ModerationPage = () => {
                     <Loader className="mx-auto h-5 w-5 animate-spin text-indigo-500" />
                   </td>
                 </tr>
-              ) : paymentData?.payments?.length ? (
-                paymentData.payments.map((payment) => (
+              ) : payments.length ? (
+                payments.map((payment) => (
                   <tr key={payment.id} className="text-sm text-slate-600 dark:text-slate-300">
                     <td className="px-4 py-4">
                       <div className="font-semibold text-slate-900 dark:text-white">
