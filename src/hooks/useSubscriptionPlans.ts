@@ -9,20 +9,29 @@ import type {
 
 const SUBSCRIPTION_PLANS_KEY = 'admin-subscription-plans';
 
-export const useSubscriptionPlans = (params?: Record<string, unknown>) =>
-  useQuery<AdminSubscriptionPlanListResponse>({
-    queryKey: [SUBSCRIPTION_PLANS_KEY, params],
+export const useSubscriptionPlans = (params?: Record<string, unknown>) => {
+  const queryKey = [SUBSCRIPTION_PLANS_KEY, params] as const;
+  return useQuery<
+    AdminSubscriptionPlanListResponse,
+    unknown,
+    AdminSubscriptionPlanListResponse,
+    typeof queryKey
+  >({
+    queryKey,
     queryFn: () => subscriptionPlansService.list(params),
     keepPreviousData: true
   });
+};
 
-export const useSubscriptionPlanDetail = (planId?: string, enabled = true) =>
-  useQuery<AdminSubscriptionPlan | undefined>({
-    queryKey: [SUBSCRIPTION_PLANS_KEY, 'detail', planId],
+export const useSubscriptionPlanDetail = (planId?: string, enabled = true) => {
+  const queryKey = [SUBSCRIPTION_PLANS_KEY, 'detail', planId] as const;
+  return useQuery<AdminSubscriptionPlan | undefined, unknown, AdminSubscriptionPlan | undefined, typeof queryKey>({
+    queryKey,
     queryFn: () => (planId ? subscriptionPlansService.get(planId) : Promise.resolve(undefined)),
     enabled: Boolean(planId) && enabled,
     staleTime: 60 * 1000
   });
+};
 
 export const useCreateSubscriptionPlanMutation = () => {
   const queryClient = useQueryClient();

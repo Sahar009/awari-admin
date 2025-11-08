@@ -11,20 +11,24 @@ import type {
 
 const SUBSCRIPTIONS_KEY = 'admin-subscriptions';
 
-export const useSubscriptions = (params?: Record<string, unknown>) =>
-  useQuery<AdminSubscriptionsResponse>({
-    queryKey: [SUBSCRIPTIONS_KEY, params],
+export const useSubscriptions = (params?: Record<string, unknown>) => {
+  const queryKey = [SUBSCRIPTIONS_KEY, params] as const;
+  return useQuery<AdminSubscriptionsResponse, unknown, AdminSubscriptionsResponse, typeof queryKey>({
+    queryKey,
     queryFn: () => subscriptionsService.list(params),
     keepPreviousData: true
   });
+};
 
-export const useSubscriptionDetail = (subscriptionId?: string, enabled = true) =>
-  useQuery<AdminSubscriptionDetail | undefined>({
-    queryKey: [SUBSCRIPTIONS_KEY, 'detail', subscriptionId],
+export const useSubscriptionDetail = (subscriptionId?: string, enabled = true) => {
+  const queryKey = [SUBSCRIPTIONS_KEY, 'detail', subscriptionId] as const;
+  return useQuery<AdminSubscriptionDetail | undefined, unknown, AdminSubscriptionDetail | undefined, typeof queryKey>({
+    queryKey,
     queryFn: () => (subscriptionId ? subscriptionsService.get(subscriptionId) : Promise.resolve(undefined)),
     enabled: Boolean(subscriptionId) && enabled,
     staleTime: 60 * 1000
   });
+};
 
 export const useCreateSubscriptionMutation = () => {
   const queryClient = useQueryClient();

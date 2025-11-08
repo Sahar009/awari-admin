@@ -9,19 +9,23 @@ import type {
 
 const PROPERTIES_KEY = 'admin-properties';
 
-export const useAdminProperties = (params?: Record<string, unknown>) =>
-  useQuery<AdminPropertiesResponse>({
-    queryKey: [PROPERTIES_KEY, params],
+export const useAdminProperties = (params?: Record<string, unknown>) => {
+  const queryKey = [PROPERTIES_KEY, params] as const;
+  return useQuery<AdminPropertiesResponse, unknown, AdminPropertiesResponse, typeof queryKey>({
+    queryKey,
     queryFn: () => adminPropertiesService.list(params),
     keepPreviousData: true
   });
+};
 
-export const useAdminPropertyDetail = (propertyId?: string, enabled?: boolean) =>
-  useQuery<AdminProperty | undefined>({
-    queryKey: [PROPERTIES_KEY, 'detail', propertyId],
-    queryFn: () => (propertyId ? adminPropertiesService.get(propertyId) : undefined),
+export const useAdminPropertyDetail = (propertyId?: string, enabled?: boolean) => {
+  const queryKey = [PROPERTIES_KEY, 'detail', propertyId] as const;
+  return useQuery<AdminProperty | undefined, unknown, AdminProperty | undefined, typeof queryKey>({
+    queryKey,
+    queryFn: () => (propertyId ? adminPropertiesService.get(propertyId) : Promise.resolve(undefined)),
     enabled: Boolean(propertyId) && enabled !== false
   });
+};
 
 export const useAdminPropertyStatusMutation = () => {
   const queryClient = useQueryClient();

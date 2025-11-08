@@ -81,9 +81,16 @@ const TransactionsPage = () => {
 
   const pagination = data?.pagination;
   const summary = data?.summary;
+  const transactions = data?.transactions ?? [];
 
-  const statusBreakdown = useMemo(() => summary?.statusBreakdown ?? {}, [summary]);
-  const typeBreakdown = useMemo(() => summary?.typeBreakdown ?? {}, [summary]);
+  const statusBreakdown = useMemo<Record<string, number>>(
+    () => summary?.statusBreakdown ?? {},
+    [summary]
+  );
+  const typeBreakdown = useMemo<Record<string, number>>(
+    () => summary?.typeBreakdown ?? {},
+    [summary]
+  );
 
   const resetFilters = () => {
     setPage(1);
@@ -325,8 +332,8 @@ const TransactionsPage = () => {
                     <Loader className="mx-auto h-5 w-5 animate-spin text-indigo-500" />
                   </td>
                 </tr>
-              ) : data?.transactions?.length ? (
-                data.transactions.map((transaction) => (
+              ) : transactions.length ? (
+                transactions.map((transaction) => (
                   <tr key={transaction.id} className="text-sm text-slate-600 dark:text-slate-300">
                     <td className="px-4 py-4">
                       <div className="font-semibold text-slate-900 dark:text-white">

@@ -4,7 +4,6 @@ import {
   TrendingUp,
   Users,
   Building2,
-  ReceiptText,
   RefreshCw,
   BookOpen,
   Sparkles,

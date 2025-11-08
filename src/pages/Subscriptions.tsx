@@ -89,6 +89,7 @@ const SubscriptionsPage = () => {
 
   const summary = data?.summary;
   const pagination = data?.pagination;
+  const subscriptions = data?.subscriptions ?? [];
 
   const { data: subscriptionDetail } = useSubscriptionDetail(
     selectedSubscriptionId ?? undefined,
@@ -99,8 +100,16 @@ const SubscriptionsPage = () => {
   const cancelSubscriptionMutation = useCancelSubscriptionMutation();
   const renewSubscriptionMutation = useRenewSubscriptionMutation();
 
-  const planBreakdown = useMemo(() => summary?.breakdown.byPlanType ?? {}, [summary]);
-  const billingBreakdown = useMemo(() => summary?.breakdown.byBillingCycle ?? {}, [summary]);
+  const planBreakdown = useMemo<Record<string, number>>(
+    () => summary?.breakdown.byPlanType ?? {},
+    [summary]
+  );
+  const billingBreakdown = useMemo<Record<string, number>>(
+    () => summary?.breakdown.byBillingCycle ?? {},
+    [summary]
+  );
+  const autoRenewBreakdown: { enabled: number; disabled: number } =
+    summary?.breakdown.autoRenew ?? { enabled: 0, disabled: 0 };
 
   const handleOpenDrawer = (subscriptionId: string) => {
     setSelectedSubscriptionId(subscriptionId);
@@ -306,13 +315,13 @@ const SubscriptionsPage = () => {
                   <div className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-900/70">
                     <span className="text-slate-600 dark:text-slate-300">Auto-renew enabled</span>
                     <span className="font-semibold text-slate-900 dark:text-white">
-                      {summary?.breakdown.autoRenew.enabled.toLocaleString() ?? 0}
+                      {autoRenewBreakdown.enabled.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-900/70">
                     <span className="text-slate-600 dark:text-slate-300">Auto-renew disabled</span>
                     <span className="font-semibold text-slate-900 dark:text-white">
-                      {summary?.breakdown.autoRenew.disabled.toLocaleString() ?? 0}
+                      {autoRenewBreakdown.disabled.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -446,8 +455,8 @@ const SubscriptionsPage = () => {
                     <Loader className="mx-auto h-5 w-5 animate-spin text-indigo-500" />
                   </td>
                 </tr>
-              ) : data?.subscriptions?.length ? (
-                data.subscriptions.map((subscription) => (
+              ) : subscriptions.length ? (
+                subscriptions.map((subscription) => (
                   <tr key={subscription.id} className="text-sm text-slate-600 dark:text-slate-300">
                     <td className="px-4 py-4">
                       <div className="font-semibold text-slate-900 dark:text-white">{subscription.planName}</div>
