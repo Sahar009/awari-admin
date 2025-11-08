@@ -15,8 +15,7 @@ export const useSubscriptions = (params?: Record<string, unknown>) => {
   const queryKey = [SUBSCRIPTIONS_KEY, params] as const;
   return useQuery<AdminSubscriptionsResponse, unknown, AdminSubscriptionsResponse, typeof queryKey>({
     queryKey,
-    queryFn: () => subscriptionsService.list(params),
-    keepPreviousData: true
+    queryFn: () => subscriptionsService.list(params)
   });
 };
 

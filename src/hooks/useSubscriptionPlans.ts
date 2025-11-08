@@ -18,8 +18,7 @@ export const useSubscriptionPlans = (params?: Record<string, unknown>) => {
     typeof queryKey
   >({
     queryKey,
-    queryFn: () => subscriptionPlansService.list(params),
-    keepPreviousData: true
+    queryFn: () => subscriptionPlansService.list(params)
   });
 };
 

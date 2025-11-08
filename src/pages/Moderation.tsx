@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ComponentType } from 'react';
 import { AlertTriangle, Filter, Loader, ShieldAlert, Star, Building2, CreditCard, IdCard } from 'lucide-react';
 import {
   useModerationOverview,
@@ -67,7 +67,7 @@ const StatCard = ({
 }: {
   title: string;
   value: number | string;
-  icon: typeof Users;
+  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   accent?: 'default' | 'warning' | 'danger';
 }) => {
   const badgeMap = {
@@ -109,24 +109,45 @@ const ModerationPage = () => {
   const [paymentStatus, setPaymentStatus] = useState<string>('failed');
 
   const { data: overviewData, isLoading: isOverviewLoading } = useModerationOverview();
-  const { data: reviewData, isLoading: isReviewsLoading, isFetching: isReviewsFetching } = useModerationReviews({
+  const reviewQuery = useModerationReviews({
     page: reviewPage,
     filter: reviewFilter
   });
-  const { data: listingData, isLoading: isListingsLoading, isFetching: isListingsFetching } = useModerationListings({
+  const listingQuery = useModerationListings({
     page: listingPage,
     status: listingStatus === 'all' ? undefined : listingStatus,
     listingType: listingType === 'all' ? undefined : listingType
   });
-  const { data: kycData, isLoading: isKycLoading, isFetching: isKycFetching } = useModerationKyc({
+  const kycQuery = useModerationKyc({
     page: kycPage,
     status: kycStatus
   });
-  const kycUpdateMutation = useModerationKycUpdate();
-  const { data: paymentData, isLoading: isPaymentsLoading, isFetching: isPaymentsFetching } = useModerationPayments({
+  const paymentQuery = useModerationPayments({
     page: paymentsPage,
     status: paymentStatus
   });
+  const kycUpdateMutation = useModerationKycUpdate();
+
+  const {
+    data: reviewData,
+    isLoading: isReviewsLoading,
+    isFetching: isReviewsFetching
+  } = reviewQuery;
+  const {
+    data: listingData,
+    isLoading: isListingsLoading,
+    isFetching: isListingsFetching
+  } = listingQuery;
+  const {
+    data: kycData,
+    isLoading: isKycLoading,
+    isFetching: isKycFetching
+  } = kycQuery;
+  const {
+    data: paymentData,
+    isLoading: isPaymentsLoading,
+    isFetching: isPaymentsFetching
+  } = paymentQuery;
 
   const reviews: ModerationReviewItem[] = reviewData?.reviews ?? [];
   const listings: ModerationListingItem[] = listingData?.listings ?? [];

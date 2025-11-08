@@ -13,8 +13,7 @@ export const useAdminProperties = (params?: Record<string, unknown>) => {
   const queryKey = [PROPERTIES_KEY, params] as const;
   return useQuery<AdminPropertiesResponse, unknown, AdminPropertiesResponse, typeof queryKey>({
     queryKey,
-    queryFn: () => adminPropertiesService.list(params),
-    keepPreviousData: true
+    queryFn: () => adminPropertiesService.list(params)
   });
 };
 
@@ -49,9 +48,9 @@ export const useAdminPropertyFeatureMutation = () => {
     data: AdminProperty;
   }, unknown, { propertyId: string; payload: AdminPropertyFeaturePayload }>({
     mutationFn: ({ propertyId, payload }) => adminPropertiesService.updateFeature(propertyId, payload),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [PROPERTIES_KEY] });
-      queryClient.invalidateQueries({ queryKey: [PROPERTIES_KEY, 'detail', propertyId] });
+      queryClient.invalidateQueries({ queryKey: [PROPERTIES_KEY, 'detail', variables.propertyId] });
     }
   });
 };

@@ -14,6 +14,14 @@ import PropertyDetailsDrawer from '../components/properties/PropertyDetailsDrawe
 
 const PAGE_SIZE = 10;
 
+const createStatusPayload = (
+  status: AdminPropertyStatusPayload['status'],
+  extras: Partial<Omit<AdminPropertyStatusPayload, 'status'>> = {}
+): AdminPropertyStatusPayload => ({
+  status,
+  ...extras
+});
+
 const defaultFilters: PropertyFiltersState = {
   search: '',
   status: '',
@@ -152,16 +160,20 @@ const PropertiesPage = () => {
     switch (action) {
       case 'approve':
       case 'activate':
-        runStatusMutation(property, action, { status: 'active' });
+        runStatusMutation(property, action, createStatusPayload('active'));
         break;
       case 'markSold':
-        runStatusMutation(property, action, { status: 'sold' });
+        runStatusMutation(property, action, createStatusPayload('sold'));
         break;
       case 'markRented':
-        runStatusMutation(property, action, { status: 'rented' });
+        runStatusMutation(property, action, createStatusPayload('rented'));
         break;
       case 'markPending':
-        runStatusMutation(property, action, { status: 'pending', moderationNotes: 'Returned to pending by admin' });
+        runStatusMutation(
+          property,
+          action,
+          createStatusPayload('pending', { moderationNotes: 'Returned to pending by admin' })
+        );
         break;
       default:
         break;
@@ -173,29 +185,38 @@ const PropertiesPage = () => {
     const { property, action } = moderationContext;
 
     if (action === 'reject') {
-      runStatusMutation(property, action, {
-        status: 'rejected',
-        rejectionReason: input.reason,
-        moderationNotes: input.notes
-      });
+      runStatusMutation(
+        property,
+        action,
+        createStatusPayload('rejected', {
+          rejectionReason: input.reason,
+          moderationNotes: input.notes
+        })
+      );
       return;
     }
 
     if (action === 'deactivate') {
-      runStatusMutation(property, action, {
-        status: 'inactive',
-        rejectionReason: input.reason,
-        moderationNotes: input.notes
-      });
+      runStatusMutation(
+        property,
+        action,
+        createStatusPayload('inactive', {
+          rejectionReason: input.reason,
+          moderationNotes: input.notes
+        })
+      );
       return;
     }
 
     if (action === 'archive') {
-      runStatusMutation(property, action, {
-        status: 'archived',
-        rejectionReason: input.reason,
-        moderationNotes: input.notes
-      });
+      runStatusMutation(
+        property,
+        action,
+        createStatusPayload('archived', {
+          rejectionReason: input.reason,
+          moderationNotes: input.notes
+        })
+      );
     }
   };
 

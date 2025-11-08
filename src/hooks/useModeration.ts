@@ -25,8 +25,7 @@ export const useModerationReviews = (params?: Record<string, unknown>) => {
   const queryKey = [MODERATION_KEY, 'reviews', params] as const;
   return useQuery<ModerationReviewsResponse, unknown, ModerationReviewsResponse, typeof queryKey>({
     queryKey,
-    queryFn: () => moderationService.getReviews(params),
-    keepPreviousData: true
+    queryFn: () => moderationService.getReviews(params)
   });
 };
 
@@ -34,8 +33,7 @@ export const useModerationListings = (params?: Record<string, unknown>) => {
   const queryKey = [MODERATION_KEY, 'listings', params] as const;
   return useQuery<ModerationListingsResponse, unknown, ModerationListingsResponse, typeof queryKey>({
     queryKey,
-    queryFn: () => moderationService.getListings(params),
-    keepPreviousData: true
+    queryFn: () => moderationService.getListings(params)
   });
 };
 
@@ -43,8 +41,7 @@ export const useModerationKyc = (params?: Record<string, unknown>) => {
   const queryKey = [MODERATION_KEY, 'kyc', params] as const;
   return useQuery<ModerationKycResponse, unknown, ModerationKycResponse, typeof queryKey>({
     queryKey,
-    queryFn: () => moderationService.getKycDocuments(params),
-    keepPreviousData: true
+    queryFn: () => moderationService.getKycDocuments(params)
   });
 };
 
@@ -52,8 +49,7 @@ export const useModerationPayments = (params?: Record<string, unknown>) => {
   const queryKey = [MODERATION_KEY, 'payments', params] as const;
   return useQuery<ModerationPaymentsResponse, unknown, ModerationPaymentsResponse, typeof queryKey>({
     queryKey,
-    queryFn: () => moderationService.getPayments(params),
-    keepPreviousData: true
+    queryFn: () => moderationService.getPayments(params)
   });
 };
 

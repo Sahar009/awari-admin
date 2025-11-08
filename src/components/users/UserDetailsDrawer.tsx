@@ -240,7 +240,9 @@ export const UserDetailsDrawer = ({
     }
   }, [user, isOpen]);
 
-  const handleInputChange = (field: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (field: keyof FormState) => (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const value = event.target.value;
     setFormState((prev) => ({ ...prev, [field]: value }));
   };

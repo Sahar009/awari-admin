@@ -8,8 +8,7 @@ export const useTransactions = (params?: Record<string, unknown>) => {
   const queryKey = [TRANSACTIONS_KEY, params] as const;
   return useQuery<AdminTransactionsResponse, unknown, AdminTransactionsResponse, typeof queryKey>({
     queryKey,
-    queryFn: () => transactionsService.list(params),
-    keepPreviousData: true
+    queryFn: () => transactionsService.list(params)
   });
 };
 

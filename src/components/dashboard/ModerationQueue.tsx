@@ -3,10 +3,30 @@ import { ActionButton } from '../ui/ActionButton';
 import React from 'react';
 import { usePendingProperties } from '../../hooks/useAdminDashboard';
 import { Loader } from 'lucide-react';
+import type { OverviewRecentProperty } from '../../services/adminDashboard';
+
+const fallbackQueue: OverviewRecentProperty[] = moderationQueue.map((item, index) => {
+  const [firstName = item.host ?? 'Host', lastName = ''] = (item.host ?? '').split(' ');
+  return {
+    id: `fallback-${index}`,
+    title: item.name,
+    listingType: item.type,
+    status: item.status ?? 'pending',
+    createdAt: new Date().toISOString(),
+    owner: item.host
+      ? {
+          id: `fallback-owner-${index}`,
+          firstName,
+          lastName,
+          email: ''
+        }
+      : undefined
+  };
+});
 
 const ModerationQueue: React.FC = () => {
   const { data, isLoading } = usePendingProperties(true);
-  const queue = data?.properties ?? moderationQueue;
+  const queue: OverviewRecentProperty[] = data?.properties ?? fallbackQueue;
 
   return (
     <section
@@ -47,20 +67,20 @@ const ModerationQueue: React.FC = () => {
               </tr>
             )}
             {queue.map((property) => (
-              <tr key={property.id ?? property.name} className="text-sm text-slate-600 dark:text-slate-300">
+              <tr key={property.id} className="text-sm text-slate-600 dark:text-slate-300">
                 <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">
-                  {property.title ?? property.name}
+                  {property.title}
                 </td>
                 <td className="px-4 py-4">
                   {property.owner
-                    ? `${property.owner.firstName} ${property.owner.lastName}`
-                    : property.host ?? 'Host'}
+                    ? `${property.owner.firstName} ${property.owner.lastName}`.trim()
+                    : '—'}
                 </td>
                 <td className="px-4 py-4 text-xs font-semibold uppercase text-indigo-500 dark:text-indigo-300">
-                  {property.listingType ?? property.type}
+                  {property.listingType}
                 </td>
                 <td className="px-4 py-4 text-xs text-slate-500">
-                  {property.createdAt ? new Date(property.createdAt).toLocaleString() : property.date}
+                  {new Date(property.createdAt).toLocaleString()}
                 </td>
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-2">

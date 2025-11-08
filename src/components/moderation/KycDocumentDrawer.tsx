@@ -17,7 +17,16 @@ const statusOptions = [
   { value: 'approved', label: 'Approved' },
   { value: 'rejected', label: 'Rejected' },
   { value: 'expired', label: 'Expired' }
-];
+] as const;
+
+type StatusOption = (typeof statusOptions)[number]['value'];
+
+const normalizeStatus = (value?: string | null): StatusOption | undefined => {
+  if (!value) return undefined;
+  return statusOptions.some((option) => option.value === value)
+    ? (value as StatusOption)
+    : undefined;
+};
 
 const formatDateTime = (value?: string | null) => {
   if (!value) return '—';
@@ -39,7 +48,7 @@ const formatDate = (value?: string | null) => {
 
 const KycDocumentDrawer = ({ isOpen, document, isSaving, onClose, onSave, feedback }: KycDocumentDrawerProps) => {
   const [formState, setFormState] = useState<ModerationKycUpdatePayload>({
-    status: document?.status,
+    status: normalizeStatus(document?.status),
     verificationNotes: document?.verificationNotes ?? undefined,
     rejectionReason: document?.rejectionReason ?? undefined
   });
@@ -48,7 +57,7 @@ const KycDocumentDrawer = ({ isOpen, document, isSaving, onClose, onSave, feedba
   useEffect(() => {
     if (document && isOpen) {
       setFormState({
-        status: document.status,
+        status: normalizeStatus(document.status),
         verificationNotes: document.verificationNotes ?? undefined,
         rejectionReason: document.rejectionReason ?? undefined
       });
@@ -63,11 +72,13 @@ const KycDocumentDrawer = ({ isOpen, document, isSaving, onClose, onSave, feedba
     return null;
   }
 
-  const handleChange = (field: keyof ModerationKycUpdatePayload) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (field: keyof ModerationKycUpdatePayload) => (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const value = event.target.value;
     setFormState((prev) => ({
       ...prev,
-      [field]: value === '' ? undefined : value
+      [field]: field === 'status' ? normalizeStatus(value) : value === '' ? undefined : value
     }));
   };
 

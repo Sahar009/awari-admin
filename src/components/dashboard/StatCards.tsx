@@ -1,12 +1,12 @@
 import React from 'react';
 import { statCards } from '../../data/dashboard';
 import { useAdminOverview } from '../../hooks/useAdminDashboard';
-import { Loader } from 'lucide-react';
+import type { AdminOverviewResponse } from '../../services/adminDashboard';
 
 const StatCards: React.FC = () => {
   const { data, isLoading } = useAdminOverview();
 
-  const metricsMap = data?.totals ?? {};
+  const metricsMap: Partial<AdminOverviewResponse['totals']> = data?.totals ?? {};
 
   if (isLoading) {
     return (
@@ -30,7 +30,7 @@ const StatCards: React.FC = () => {
             ? 'text-emerald-500 bg-emerald-500/10'
             : 'text-rose-500 bg-rose-500/10';
         const rawValue = metricsMap[card.key as keyof typeof metricsMap];
-        const value =
+        const valueText =
           typeof rawValue === 'number'
             ? card.formatter
               ? card.formatter(rawValue)
@@ -47,9 +47,7 @@ const StatCards: React.FC = () => {
                 <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                   {card.name}
                 </p>
-                <h3 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                  {typeof value === 'number' ? value.toLocaleString() : value}
-                </h3>
+                <h3 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{valueText}</h3>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-tr from-indigo-500/10 via-purple-500/10 to-pink-500/10 text-indigo-500 dark:text-indigo-400">
                 <Icon className="h-6 w-6" />
