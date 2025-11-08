@@ -5,11 +5,13 @@ import {
   useAdminUserStatusMutation,
   useAdminUserRoleMutation,
   useAdminUserDetail,
-  useAdminUserProfileMutation
+  useAdminUserProfileMutation,
+  useCreateAdminUserMutation
 } from '../../hooks/useAdminUsers';
 import { ActionButton } from '../ui/ActionButton';
 import UserDetailsDrawer from './UserDetailsDrawer';
 import type { AdminUserProfileUpdatePayload } from '../../services/types';
+import CreateAdminModal from './CreateAdminModal';
 
 const badgeColor: Record<string, string> = {
   admin: 'bg-amber-500/15 text-amber-500 dark:bg-amber-500/20',
@@ -55,10 +57,13 @@ const UsersSection: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerFeedback, setDrawerFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
+  const [sectionFeedback, setSectionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const { data, isLoading, isFetching } = useAdminUsers({ page, limit });
   const statusMutation = useAdminUserStatusMutation();
   const roleMutation = useAdminUserRoleMutation();
   const profileMutation = useAdminUserProfileMutation();
+  const createAdminMutation = useCreateAdminUserMutation();
   const { data: detailData, isLoading: isDetailLoading } = useAdminUserDetail(selectedUserId ?? undefined, drawerOpen);
 
   const handleStatusChange = (userId: string, action: 'activate' | 'suspend' | 'ban' | 'reinstate') => {
@@ -139,6 +144,25 @@ const UsersSection: React.FC = () => {
     );
   };
 
+  const handleCreateAdminSubmit = (payload: { firstName: string; lastName: string; email: string; phone?: string }) => {
+    setSectionFeedback(null);
+    createAdminMutation.mutate(payload, {
+      onSuccess: (response) => {
+        const { user, temporaryPassword, emailSent } = response.data;
+        const emailStatus = emailSent
+          ? 'Credentials were emailed successfully.'
+          : 'Email delivery failed; share the temporary password manually.';
+        setSectionFeedback({
+          type: 'success',
+          message: `${user.firstName} ${user.lastName} now has admin access. ${emailStatus} Temporary password: ${temporaryPassword}`
+        });
+        setCreateModalOpen(false);
+      }
+    });
+  };
+
+  const createAdminError = createAdminMutation.isError ? extractErrorMessage(createAdminMutation.error) : null;
+
   const pagination = data?.pagination;
   const currentPage = pagination?.currentPage ?? page;
   const users = data?.users ?? [];
@@ -169,11 +193,29 @@ const UsersSection: React.FC = () => {
             View and moderate users across the AWARI ecosystem.
           </p>
         </div>
-        {/* <div className="flex items-center gap-2">
-          <ActionButton variant="outline" label="Export CSV" />
-          <ActionButton variant="secondary" label="Invite admin" />
-        </div> */}
+        <div className="flex items-center gap-2">
+          <ActionButton
+            variant="secondary"
+            label="Create admin"
+            onClick={() => {
+              setSectionFeedback(null);
+              setCreateModalOpen(true);
+            }}
+          />
+        </div>
       </div>
+
+      {sectionFeedback ? (
+        <div
+          className={`mt-4 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
+            sectionFeedback.type === 'success'
+              ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200'
+              : 'border-rose-500/40 bg-rose-500/10 text-rose-500 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200'
+          }`}
+        >
+          {sectionFeedback.message}
+        </div>
+      ) : null}
 
       <div className="mt-6 overflow-x-auto">
         {isFetching && !isLoading && (
@@ -338,6 +380,17 @@ const UsersSection: React.FC = () => {
         isRoleUpdating={isDrawerRoleUpdating}
         isStatusUpdating={isDrawerStatusUpdating}
         feedback={drawerFeedback}
+      />
+      <CreateAdminModal
+        isOpen={isCreateModalOpen}
+        isSubmitting={createAdminMutation.isPending}
+        errorMessage={createAdminError}
+        onClose={() => {
+          if (createAdminMutation.isPending) return;
+          createAdminMutation.reset();
+          setCreateModalOpen(false);
+        }}
+        onSubmit={handleCreateAdminSubmit}
       />
     </section>
   );
