@@ -28,3 +28,4 @@ export const PropertyStatusBadge = ({ status }: PropertyStatusBadgeProps) => {
 export default PropertyStatusBadge;
 
 
+

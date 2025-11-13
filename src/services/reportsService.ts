@@ -12,3 +12,4 @@ const reportsService = {
 };
 
 export default reportsService;
+

@@ -44,3 +44,4 @@ export const adminPropertiesService = {
 export default adminPropertiesService;
 
 
+

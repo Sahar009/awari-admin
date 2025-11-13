@@ -10,3 +10,4 @@ export const useReportsMetrics = (params?: ReportsMetricsParams) =>
     queryFn: () => reportsService.getMetrics(params),
     staleTime: 5 * 60 * 1000
   });
+

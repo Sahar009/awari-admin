@@ -125,3 +125,4 @@ export const PropertySummary = ({ summary, isLoading }: PropertySummaryProps) =>
 export default PropertySummary;
 
 
+
