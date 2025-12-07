@@ -1,16 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { Loader, ArrowRight } from 'lucide-react';
 import logo from '../../assets/logo.png';
+import api from '../../lib/api';
 
 const inputClasses =
   'w-full rounded-xl border border-slate-200 bg-white/70 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-indigo-500';
+
+interface SnapshotData {
+  pendingListings: number;
+  activeHosts: number;
+  urgentNotifications: number;
+}
 
 export const LoginForm = () => {
   const { login, isLoading, error } = useAdminAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
+  const [snapshot, setSnapshot] = useState<SnapshotData>({
+    pendingListings: 0,
+    activeHosts: 0,
+    urgentNotifications: 0
+  });
+  const [snapshotLoading, setSnapshotLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSnapshot = async () => {
+      try {
+        setSnapshotLoading(true);
+        const response = await api.get<{ success: boolean; data: SnapshotData }>('/admin/dashboard/snapshot');
+        if (response.data.success && response.data.data) {
+          setSnapshot(response.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch snapshot:', error);
+        // Silently fail - use default values
+      } finally {
+        setSnapshotLoading(false);
+      }
+    };
+
+    fetchSnapshot();
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -41,15 +73,29 @@ export const LoginForm = () => {
             <div className="mt-4 space-y-4 text-xs">
               <div className="flex items-center justify-between">
                 <span>New listings pending review</span>
-                <span className="font-semibold">12</span>
+                {snapshotLoading ? (
+                  <Loader className="h-3 w-3 animate-spin" />
+                ) : (
+                  <span className="font-semibold">{snapshot.pendingListings}</span>
+                )}
               </div>
               <div className="flex items-center justify-between">
                 <span>Active hosts online</span>
-                <span className="font-semibold">34</span>
+                {snapshotLoading ? (
+                  <Loader className="h-3 w-3 animate-spin" />
+                ) : (
+                  <span className="font-semibold">{snapshot.activeHosts}</span>
+                )}
               </div>
               <div className="flex items-center justify-between">
                 <span>Support tickets</span>
-                <span className="font-semibold text-amber-200">5 urgent</span>
+                {snapshotLoading ? (
+                  <Loader className="h-3 w-3 animate-spin" />
+                ) : (
+                  <span className={`font-semibold ${snapshot.urgentNotifications > 0 ? 'text-amber-200' : ''}`}>
+                    {snapshot.urgentNotifications > 0 ? `${snapshot.urgentNotifications} urgent` : '0'}
+                  </span>
+                )}
               </div>
             </div>
           </div>
