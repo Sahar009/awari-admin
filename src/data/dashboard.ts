@@ -7,7 +7,8 @@ import {
   FileText,
   TrendingUp,
   Settings,
-  Layers
+  Layers,
+  ArrowDownRight
 } from 'lucide-react';
 
 export const navigation = [
@@ -16,6 +17,7 @@ export const navigation = [
   { name: 'Properties', icon: Building2, path: '/properties' },
   { name: 'Moderation', icon: Shield, path: '/moderation' },
   { name: 'Transactions', icon: Wallet, path: '/transactions' },
+  { name: 'Withdrawals', icon: ArrowDownRight, path: '/withdrawals' },
   { name: 'Subscriptions', icon: FileText, path: '/subscriptions' },
   { name: 'Plans', icon: Layers, path: '/subscription-plans' },
   { name: 'Reports', icon: TrendingUp, path: '/reports' },

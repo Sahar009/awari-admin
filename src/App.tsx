@@ -10,6 +10,7 @@ import UsersPage from './pages/Users';
 import PropertiesPage from './pages/Properties';
 import ModerationPage from './pages/Moderation';
 import TransactionsPage from './pages/Transactions';
+import WithdrawalsPage from './pages/Withdrawals';
 import SubscriptionsPage from './pages/Subscriptions';
 import PlansPage from './pages/Plans';
 import ReportsPage from './pages/Reports';
@@ -89,6 +90,7 @@ function App() {
                 <Route path="/properties" element={<PropertiesPage />} />
                 <Route path="/moderation" element={<ModerationPage />} />
                 <Route path="/transactions" element={<TransactionsPage />} />
+                <Route path="/withdrawals" element={<WithdrawalsPage />} />
                 <Route path="/subscriptions" element={<SubscriptionsPage />} />
                 <Route path="/subscription-plans" element={<PlansPage />} />
                 <Route path="/reports" element={<ReportsPage />} />
