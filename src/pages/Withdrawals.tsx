@@ -44,6 +44,12 @@ interface WithdrawalRequest {
     accountName?: string;
     bankCode?: string;
     bankName?: string;
+    bankDetails?: {
+      accountNumber?: string;
+      accountName?: string;
+      bankCode?: string;
+      bankName?: string;
+    };
   };
   createdAt: string;
   updatedAt: string;
