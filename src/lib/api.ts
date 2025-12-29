@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // baseURL: "https://awari-backend.onrender.com/api",
-   baseURL: 'http://localhost:8000/api',
+  baseURL: "https://backend.awarihomes.com/api",
+  
   timeout: 15000
 });
 
