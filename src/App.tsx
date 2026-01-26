@@ -15,6 +15,7 @@ import SubscriptionsPage from './pages/Subscriptions';
 import PlansPage from './pages/Plans';
 import ReportsPage from './pages/Reports';
 import SettingsPage from './pages/Settings';
+import BookingFeesSettings from './pages/BookingFeesSettings';
 import { useAdminAuth } from './context/AdminAuthContext';
 import LoginForm from './components/auth/LoginForm';
 
@@ -94,6 +95,7 @@ function App() {
                 <Route path="/subscriptions" element={<SubscriptionsPage />} />
                 <Route path="/subscription-plans" element={<PlansPage />} />
                 <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/booking-fees" element={<BookingFeesSettings />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

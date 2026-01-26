@@ -8,7 +8,8 @@ import {
   TrendingUp,
   Settings,
   Layers,
-  ArrowDownRight
+  ArrowDownRight,
+  DollarSign
 } from 'lucide-react';
 
 export const navigation = [
@@ -21,6 +22,7 @@ export const navigation = [
   { name: 'Subscriptions', icon: FileText, path: '/subscriptions' },
   { name: 'Plans', icon: Layers, path: '/subscription-plans' },
   { name: 'Reports', icon: TrendingUp, path: '/reports' },
+  { name: 'Booking Fees', icon: DollarSign, path: '/booking-fees' },
   { name: 'Settings', icon: Settings, path: '/settings' }
 ];
 
