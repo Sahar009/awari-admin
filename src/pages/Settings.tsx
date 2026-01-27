@@ -37,7 +37,7 @@ const SettingsPage = () => {
   const [profile, setProfile] = useState({
     firstName: 'Admin',
     lastName: 'User',
-    email: 'admin@awari.com',
+    email: 'admin@awarihomes.com',
     phoneNumber: '+234 800 0000 000',
     jobTitle: 'Platform Administrator'
   });

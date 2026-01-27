@@ -123,7 +123,7 @@ export const LoginForm = () => {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className={inputClasses}
-              placeholder="admin@awari.com"
+              placeholder="admin@awarihomes.com"
               required
             />
           </div>
