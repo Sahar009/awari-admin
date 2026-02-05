@@ -1,21 +1,31 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Save, RefreshCw, Loader, Percent } from 'lucide-react';
+import { DollarSign, Save, RefreshCw, Loader, Plus, Trash2, Building2 } from 'lucide-react';
 import { ActionButton } from '../components/ui/ActionButton';
 import api from '../lib/api';
 
 interface FeeConfig {
     id: string;
-    feeType: 'service_fee' | 'tax' | 'platform_fee';
+    feeType: 'service_fee' | 'tax' | 'platform_fee' | 'agency_fee' | 'damage_fee';
     valueType: 'percentage' | 'fixed';
     value: number;
     isActive: boolean;
     description?: string;
+    propertyType?: 'rent' | 'sale' | 'shortlet' | 'hotel' | null;
 }
 
 const FEE_TYPE_LABELS = {
-    service_fee: 'Service Fee',
+    service_fee: 'AWARI Service Fee',
     tax: 'Tax',
     platform_fee: 'Platform Fee',
+    agency_fee: 'Agency Fee',
+    damage_fee: 'Damage/Security Fee',
+};
+
+const PROPERTY_TYPE_LABELS = {
+    rent: 'Rental Properties',
+    sale: 'Properties for Sale',
+    shortlet: 'Short-let Properties',
+    hotel: 'Hotel Bookings',
 };
 
 const BookingFeesSettings = () => {
@@ -24,11 +34,16 @@ const BookingFeesSettings = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-
-    // Form state for each fee type
-    const [serviceFee, setServiceFee] = useState({ value: 10, valueType: 'percentage' as 'percentage' | 'fixed' });
-    const [tax, setTax] = useState({ value: 5, valueType: 'percentage' as 'percentage' | 'fixed' });
-    const [platformFee, setPlatformFee] = useState({ value: 0, valueType: 'percentage' as 'percentage' | 'fixed' });
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    
+    // New fee form state
+    const [newFee, setNewFee] = useState({
+        feeType: 'service_fee' as FeeConfig['feeType'],
+        valueType: 'percentage' as 'percentage' | 'fixed',
+        value: 0,
+        propertyType: null as 'rent' | 'sale' | 'shortlet' | 'hotel' | null,
+        description: '',
+    });
 
     // Fetch fees on mount
     useEffect(() => {
@@ -42,19 +57,6 @@ const BookingFeesSettings = () => {
             const response = await api.get('/booking-fees/all');
             const fetchedFees = response.data.data || [];
             setFees(fetchedFees);
-
-            // Populate form with current active fees
-            fetchedFees.forEach((fee: FeeConfig) => {
-                if (fee.isActive) {
-                    if (fee.feeType === 'service_fee') {
-                        setServiceFee({ value: Number(fee.value), valueType: fee.valueType });
-                    } else if (fee.feeType === 'tax') {
-                        setTax({ value: Number(fee.value), valueType: fee.valueType });
-                    } else if (fee.feeType === 'platform_fee') {
-                        setPlatformFee({ value: Number(fee.value), valueType: fee.valueType });
-                    }
-                }
-            });
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to fetch booking fees');
             console.error('Error fetching fees:', err);
@@ -63,60 +65,77 @@ const BookingFeesSettings = () => {
         }
     };
 
-    const updateFee = async (feeType: 'service_fee' | 'tax' | 'platform_fee', value: number, valueType: 'percentage' | 'fixed') => {
+    const createFee = async () => {
         setIsSaving(true);
         setError('');
         setSuccess('');
 
         try {
-            // Find existing active fee of this type
-            const existingFee = fees.find(f => f.feeType === feeType && f.isActive);
+            await api.post('/booking-fees', {
+                feeType: newFee.feeType,
+                valueType: newFee.valueType,
+                value: newFee.value,
+                propertyType: newFee.propertyType,
+                isActive: true,
+                description: newFee.description || `${FEE_TYPE_LABELS[newFee.feeType]} - ${newFee.valueType === 'percentage' ? `${newFee.value}%` : `₦${newFee.value}`}`,
+            });
 
-            if (existingFee) {
-                // Update existing fee
-                await api.put(`/booking-fees/${existingFee.id}`, {
-                    value,
-                    valueType,
-                    isActive: true,
-                });
-            } else {
-                // Create new fee
-                await api.post('/booking-fees', {
-                    feeType,
-                    valueType,
-                    value,
-                    isActive: true,
-                    description: `${FEE_TYPE_LABELS[feeType]} - ${valueType === 'percentage' ? `${value}%` : `₦${value}`}`,
-                });
-            }
-
-            setSuccess(`${FEE_TYPE_LABELS[feeType]} updated successfully!`);
-            await fetchFees(); // Refresh fees
+            setSuccess('Fee configuration created successfully!');
+            setShowCreateModal(false);
+            setNewFee({
+                feeType: 'service_fee',
+                valueType: 'percentage',
+                value: 0,
+                propertyType: null,
+                description: '',
+            });
+            await fetchFees();
         } catch (err: any) {
-            setError(err.response?.data?.message || `Failed to update ${FEE_TYPE_LABELS[feeType]}`);
+            setError(err.response?.data?.message || 'Failed to create fee configuration');
+            console.error('Error creating fee:', err);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const updateFee = async (feeId: string, updates: Partial<FeeConfig>) => {
+        setIsSaving(true);
+        setError('');
+        setSuccess('');
+
+        try {
+            await api.put(`/booking-fees/${feeId}`, updates);
+            setSuccess('Fee updated successfully!');
+            await fetchFees();
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to update fee');
             console.error('Error updating fee:', err);
         } finally {
             setIsSaving(false);
         }
     };
 
-    const handleSaveAll = async () => {
+    const deleteFee = async (feeId: string) => {
+        if (!confirm('Are you sure you want to delete this fee configuration?')) return;
+
         setIsSaving(true);
         setError('');
         setSuccess('');
 
         try {
-            // Update all fees sequentially
-            await updateFee('service_fee', serviceFee.value, serviceFee.valueType);
-            await updateFee('tax', tax.value, tax.valueType);
-            await updateFee('platform_fee', platformFee.value, platformFee.valueType);
-
-            setSuccess('All booking fees updated successfully!');
+            await api.delete(`/booking-fees/${feeId}`);
+            setSuccess('Fee deleted successfully!');
+            await fetchFees();
         } catch (err: any) {
-            setError('Failed to update all fees. Some changes may have been saved.');
+            setError(err.response?.data?.message || 'Failed to delete fee');
+            console.error('Error deleting fee:', err);
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const toggleFeeStatus = async (feeId: string, currentStatus: boolean) => {
+        await updateFee(feeId, { isActive: !currentStatus });
     };
 
     if (isLoading) {
@@ -132,18 +151,25 @@ const BookingFeesSettings = () => {
             <header className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Booking Fees Settings</h1>
+                        <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Booking Fees Configuration</h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Configure service fees, taxes, and platform fees for all bookings
+                            Manage platform fees, agency fees, and other charges for different property types
                         </p>
                     </div>
-                    <ActionButton
-                        variant="secondary"
-                        label="Refresh"
-                        startIcon={<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />}
-                        onClick={fetchFees}
-                        disabled={isLoading}
-                    />
+                    <div className="flex gap-2">
+                        <ActionButton
+                            variant="secondary"
+                            label="Refresh"
+                            startIcon={<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />}
+                            onClick={fetchFees}
+                            disabled={isLoading}
+                        />
+                        <ActionButton
+                            label="Add New Fee"
+                            startIcon={<Plus className="h-4 w-4" />}
+                            onClick={() => setShowCreateModal(true)}
+                        />
+                    </div>
                 </div>
             </header>
 
@@ -159,218 +185,221 @@ const BookingFeesSettings = () => {
                 </div>
             )}
 
-            <section className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 className="text-base font-semibold text-slate-900 dark:text-white">Fee Configuration</h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Set the fees that will be applied to all new bookings. Changes take effect immediately.
-                        </p>
+            {/* Fee Configurations Table */}
+            <section className="rounded-2xl border border-slate-200/70 bg-white/90 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70 overflow-hidden">
+                <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-base font-semibold text-slate-900 dark:text-white">Active Fee Configurations</h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                Manage fees for different property types and booking scenarios
+                            </p>
+                        </div>
+                        <DollarSign className="h-5 w-5 text-indigo-500" />
                     </div>
-                    <DollarSign className="h-5 w-5 text-indigo-500" />
                 </div>
 
-                <div className="space-y-6">
-                    {/* Service Fee */}
-                    <div className="space-y-4 p-4 border border-slate-200 rounded-xl dark:border-slate-700">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-semibold text-slate-900 dark:text-white">Service Fee</label>
-                            <ActionButton
-                                label="Save"
-                                startIcon={isSaving ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                onClick={() => updateFee('service_fee', serviceFee.value, serviceFee.valueType)}
-                                disabled={isSaving}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="block text-sm text-slate-500 dark:text-slate-400">Value</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max={serviceFee.valueType === 'percentage' ? 100 : undefined}
-                                    step={serviceFee.valueType === 'percentage' ? 0.1 : 1}
-                                    value={serviceFee.value}
-                                    onChange={(e) => setServiceFee({ ...serviceFee, value: Number(e.target.value) })}
-                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm text-slate-500 dark:text-slate-400">Type</label>
-                                <select
-                                    value={serviceFee.valueType}
-                                    onChange={(e) => setServiceFee({ ...serviceFee, valueType: e.target.value as 'percentage' | 'fixed' })}
-                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
-                                >
-                                    <option value="percentage">Percentage (%)</option>
-                                    <option value="fixed">Fixed Amount (₦)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {serviceFee.valueType === 'percentage'
-                                ? `Customers will be charged ${serviceFee.value}% of the base price`
-                                : `Customers will be charged a flat ₦${serviceFee.value.toLocaleString()}`
-                            }
-                        </div>
-                    </div>
-
-                    {/* Tax */}
-                    <div className="space-y-4 p-4 border border-slate-200 rounded-xl dark:border-slate-700">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-semibold text-slate-900 dark:text-white">Tax</label>
-                            <ActionButton
-                                label="Save"
-                                startIcon={isSaving ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                onClick={() => updateFee('tax', tax.value, tax.valueType)}
-                                disabled={isSaving}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="block text-sm text-slate-500 dark:text-slate-400">Value</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max={tax.valueType === 'percentage' ? 100 : undefined}
-                                    step={tax.valueType === 'percentage' ? 0.1 : 1}
-                                    value={tax.value}
-                                    onChange={(e) => setTax({ ...tax, value: Number(e.target.value) })}
-                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm text-slate-500 dark:text-slate-400">Type</label>
-                                <select
-                                    value={tax.valueType}
-                                    onChange={(e) => setTax({ ...tax, valueType: e.target.value as 'percentage' | 'fixed' })}
-                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
-                                >
-                                    <option value="percentage">Percentage (%)</option>
-                                    <option value="fixed">Fixed Amount (₦)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {tax.valueType === 'percentage'
-                                ? `Customers will be charged ${tax.value}% of the base price`
-                                : `Customers will be charged a flat ₦${tax.value.toLocaleString()}`
-                            }
-                        </div>
-                    </div>
-
-                    {/* Platform Fee */}
-                    <div className="space-y-4 p-4 border border-slate-200 rounded-xl dark:border-slate-700">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-semibold text-slate-900 dark:text-white">Platform Fee</label>
-                            <ActionButton
-                                label="Save"
-                                startIcon={isSaving ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                onClick={() => updateFee('platform_fee', platformFee.value, platformFee.valueType)}
-                                disabled={isSaving}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="block text-sm text-slate-500 dark:text-slate-400">Value</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max={platformFee.valueType === 'percentage' ? 100 : undefined}
-                                    step={platformFee.valueType === 'percentage' ? 0.1 : 1}
-                                    value={platformFee.value}
-                                    onChange={(e) => setPlatformFee({ ...platformFee, value: Number(e.target.value) })}
-                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm text-slate-500 dark:text-slate-400">Type</label>
-                                <select
-                                    value={platformFee.valueType}
-                                    onChange={(e) => setPlatformFee({ ...platformFee, valueType: e.target.value as 'percentage' | 'fixed' })}
-                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
-                                >
-                                    <option value="percentage">Percentage (%)</option>
-                                    <option value="fixed">Fixed Amount (₦)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {platformFee.valueType === 'percentage'
-                                ? `Customers will be charged ${platformFee.value}% of the base price`
-                                : `Customers will be charged a flat ₦${platformFee.value.toLocaleString()}`
-                            }
-                        </div>
-                    </div>
-
-                    <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                        <ActionButton
-                            label={isSaving ? 'Saving All Fees...' : 'Save All Changes'}
-                            startIcon={isSaving ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                            onClick={handleSaveAll}
-                            disabled={isSaving}
-                            className="w-full"
-                        />
-                    </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Fee Type
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Property Type
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Value
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Description
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                            {fees.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                                        No fee configurations found. Click "Add New Fee" to create one.
+                                    </td>
+                                </tr>
+                            ) : (
+                                fees.map((fee) => (
+                                    <tr key={fee.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <Building2 className="h-4 w-4 text-slate-400 mr-2" />
+                                                <span className="text-sm font-medium text-slate-900 dark:text-white">
+                                                    {FEE_TYPE_LABELS[fee.feeType]}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                {fee.propertyType ? PROPERTY_TYPE_LABELS[fee.propertyType] : 'All Properties'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-sm text-slate-900 dark:text-white font-semibold">
+                                                {fee.valueType === 'percentage' ? `${fee.value}%` : `₦${Number(fee.value).toLocaleString()}`}
+                                            </span>
+                                            <span className="text-xs text-slate-500 ml-1">
+                                                ({fee.valueType})
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <button
+                                                onClick={() => toggleFeeStatus(fee.id, fee.isActive)}
+                                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                    fee.isActive
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                                                }`}
+                                            >
+                                                {fee.isActive ? 'Active' : 'Inactive'}
+                                            </button>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
+                                                {fee.description || 'No description'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button
+                                                onClick={() => deleteFee(fee.id)}
+                                                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                                disabled={isSaving}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
-            <section className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70">
-                <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 className="text-base font-semibold text-slate-900 dark:text-white">Preview</h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Example calculation for a ₦100,000 booking</p>
-                    </div>
-                    <Percent className="h-5 w-5 text-indigo-500" />
-                </div>
-
-                <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                        <span className="text-slate-500 dark:text-slate-400">Base Price:</span>
-                        <span className="font-medium text-slate-900 dark:text-white">₦100,000</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-slate-500 dark:text-slate-400">Service Fee ({serviceFee.valueType === 'percentage' ? `${serviceFee.value}%` : `₦${serviceFee.value}`}):</span>
-                        <span className="font-medium text-slate-900 dark:text-white">
-                            ₦{(serviceFee.valueType === 'percentage' ? 100000 * (serviceFee.value / 100) : serviceFee.value).toLocaleString()}
-                        </span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-slate-500 dark:text-slate-400">Tax ({tax.valueType === 'percentage' ? `${tax.value}%` : `₦${tax.value}`}):</span>
-                        <span className="font-medium text-slate-900 dark:text-white">
-                            ₦{(tax.valueType === 'percentage' ? 100000 * (tax.value / 100) : tax.value).toLocaleString()}
-                        </span>
-                    </div>
-                    {platformFee.value > 0 && (
-                        <div className="flex justify-between">
-                            <span className="text-slate-500 dark:text-slate-400">Platform Fee ({platformFee.valueType === 'percentage' ? `${platformFee.value}%` : `₦${platformFee.value}`}):</span>
-                            <span className="font-medium text-slate-900 dark:text-white">
-                                ₦{(platformFee.valueType === 'percentage' ? 100000 * (platformFee.value / 100) : platformFee.value).toLocaleString()}
-                            </span>
+            {/* Create Fee Modal */}
+            {showCreateModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Create New Fee Configuration</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                Add a new fee that will be applied to bookings
+                            </p>
                         </div>
-                    )}
-                    <div className="flex justify-between pt-2 border-t border-slate-200 font-semibold text-base dark:border-slate-700">
-                        <span className="text-slate-900 dark:text-white">Total:</span>
-                        <span className="text-slate-900 dark:text-white">
-                            ₦{(
-                                100000 +
-                                (serviceFee.valueType === 'percentage' ? 100000 * (serviceFee.value / 100) : serviceFee.value) +
-                                (tax.valueType === 'percentage' ? 100000 * (tax.value / 100) : tax.value) +
-                                (platformFee.valueType === 'percentage' ? 100000 * (platformFee.value / 100) : platformFee.value)
-                            ).toLocaleString()}
-                        </span>
+
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Fee Type *
+                                    </label>
+                                    <select
+                                        value={newFee.feeType}
+                                        onChange={(e) => setNewFee({ ...newFee, feeType: e.target.value as FeeConfig['feeType'] })}
+                                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                    >
+                                        <option value="service_fee">AWARI Service Fee</option>
+                                        <option value="agency_fee">Agency Fee</option>
+                                        <option value="damage_fee">Damage/Security Fee</option>
+                                        <option value="tax">Tax</option>
+                                        <option value="platform_fee">Platform Fee</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Property Type
+                                    </label>
+                                    <select
+                                        value={newFee.propertyType || ''}
+                                        onChange={(e) => setNewFee({ ...newFee, propertyType: e.target.value as any || null })}
+                                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                    >
+                                        <option value="">All Property Types</option>
+                                        <option value="rent">Rental Properties</option>
+                                        <option value="sale">Properties for Sale</option>
+                                        <option value="shortlet">Short-let Properties</option>
+                                        <option value="hotel">Hotel Bookings</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Value Type *
+                                    </label>
+                                    <select
+                                        value={newFee.valueType}
+                                        onChange={(e) => setNewFee({ ...newFee, valueType: e.target.value as 'percentage' | 'fixed' })}
+                                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                    >
+                                        <option value="percentage">Percentage (%)</option>
+                                        <option value="fixed">Fixed Amount (₦)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Value *
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max={newFee.valueType === 'percentage' ? 100 : undefined}
+                                        step={newFee.valueType === 'percentage' ? 0.1 : 1}
+                                        value={newFee.value}
+                                        onChange={(e) => setNewFee({ ...newFee, value: Number(e.target.value) })}
+                                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                        placeholder={newFee.valueType === 'percentage' ? '10' : '5000'}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    Description (Optional)
+                                </label>
+                                <textarea
+                                    value={newFee.description}
+                                    onChange={(e) => setNewFee({ ...newFee, description: e.target.value })}
+                                    rows={3}
+                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                    placeholder="Additional details about this fee..."
+                                />
+                            </div>
+                        </div>
+
+                        <div className="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowCreateModal(false)}
+                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-700"
+                                disabled={isSaving}
+                            >
+                                Cancel
+                            </button>
+                            <ActionButton
+                                label={isSaving ? 'Creating...' : 'Create Fee'}
+                                startIcon={isSaving ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                onClick={createFee}
+                                disabled={isSaving || newFee.value <= 0}
+                            />
+                        </div>
                     </div>
                 </div>
-            </section>
+            )}
         </div>
     );
 };

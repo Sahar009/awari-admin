@@ -112,6 +112,17 @@ export const PropertyDetailsDrawer = ({ isOpen, property, isLoading, onClose }: 
   const averageRating =
     reviews.length > 0 ? reviews.reduce((sum, review) => sum + (review.rating || 0), 0) / reviews.length : null;
 
+  // Debug logging
+  console.log('Admin Property Details:', {
+    propertyId: property?.id,
+    listingType: property?.listingType,
+    hasBookings: !!property?.bookings,
+    bookingsCount: bookings.length,
+    shortletBookingsCount: shortletBookings.length,
+    bookings: bookings,
+    shortletBookings: shortletBookings
+  });
+
   return (
     <div className="fixed inset-0 z-50 flex">
       <div className="hidden flex-1 bg-slate-900/40 backdrop-blur-sm md:block" onClick={onClose} />
