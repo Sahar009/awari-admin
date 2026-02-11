@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ShieldCheck, Bell, MonitorCog, Save, Key, RefreshCcw } from 'lucide-react';
+import { ShieldCheck, Bell, MonitorCog, Save } from 'lucide-react';
 import { ActionButton } from '../components/ui/ActionButton';
 
 interface ToggleButtonProps {
@@ -66,11 +66,7 @@ const SettingsPage = () => {
     sessionRefresh: true
   });
 
-  const [apiKeys] = useState([
-    { id: 'paystack', label: 'Paystack Secret Key', value: 'sk_live_•••••••••••0x1n', lastRotated: '14 days ago' },
-    { id: 'firebase', label: 'Firebase Admin Key', value: 'service-account-••••.json', lastRotated: '2 months ago' }
-  ]);
-
+  
   const handleProfileChange = (field: keyof typeof profile, value: string) => {
     setProfile((prev) => ({ ...prev, [field]: value }));
   };
@@ -338,7 +334,7 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="mt-6 space-y-4 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800/70 dark:bg-slate-900/60">
+          {/* <div className="mt-6 space-y-4 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800/70 dark:bg-slate-900/60">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Integration credentials</h3>
               <ActionButton
@@ -367,7 +363,7 @@ const SettingsPage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </section>
 
         <div className="flex justify-end">

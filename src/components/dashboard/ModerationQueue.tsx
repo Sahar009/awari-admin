@@ -1,32 +1,68 @@
 import { moderationQueue } from '../../data/dashboard';
 import { ActionButton } from '../ui/ActionButton';
-import React from 'react';
-import { usePendingProperties } from '../../hooks/useAdminDashboard';
-import { Loader } from 'lucide-react';
-import type { OverviewRecentProperty } from '../../services/adminDashboard';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useModerationListings, useApproveProperty, useRejectProperty } from '../../hooks/useModeration';
+import { Loader, CheckCircle, XCircle } from 'lucide-react';
+import type { ModerationListingItem } from '../../services/types';
 
-const fallbackQueue: OverviewRecentProperty[] = moderationQueue.map((item, index) => {
+// Fallback data when API is not available
+const fallbackQueue: ModerationListingItem[] = moderationQueue.map((item, index) => {
   const [firstName = item.host ?? 'Host', lastName = ''] = (item.host ?? '').split(' ');
   return {
     id: `fallback-${index}`,
     title: item.name,
-    listingType: item.type,
-    status: item.status ?? 'pending',
+    listingType: item.type as any,
+    status: (item.status ?? 'pending') as any,
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    city: null,
+    state: null,
     owner: item.host
       ? {
-          id: `fallback-owner-${index}`,
-          firstName,
-          lastName,
-          email: ''
-        }
-      : undefined
+        id: `fallback-owner-${index}`,
+        firstName,
+        lastName,
+        email: '',
+        role: null
+      }
+      : null,
+    agent: null,
+    rejectionReason: null,
+    moderationNotes: null
   };
 });
 
 const ModerationQueue: React.FC = () => {
-  const { data, isLoading } = usePendingProperties(true);
-  const queue: OverviewRecentProperty[] = data?.properties ?? fallbackQueue;
+  const navigate = useNavigate();
+  const { data, isLoading, isError } = useModerationListings({ limit: 5 });
+  const approveMutation = useApproveProperty();
+  const rejectMutation = useRejectProperty();
+  const [processingId, setProcessingId] = useState<string | null>(null);
+
+  // Use API data if available, otherwise use fallback
+  const queue: ModerationListingItem[] = data?.listings ?? (isError ? fallbackQueue : []);
+
+  const handleApprove = async (propertyId: string) => {
+    setProcessingId(propertyId);
+    approveMutation.mutate(
+      { propertyId },
+      {
+        onSettled: () => setProcessingId(null)
+      }
+    );
+  };
+
+  const handleReject = (propertyId: string) => {
+    setProcessingId(propertyId);
+    // For quick reject from dashboard, use a default reason
+    rejectMutation.mutate(
+      { propertyId, reason: 'Does not meet listing standards' },
+      {
+        onSettled: () => setProcessingId(null)
+      }
+    );
+  };
 
   return (
     <section
@@ -38,7 +74,7 @@ const ModerationQueue: React.FC = () => {
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Property moderation queue</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">Recent submissions waiting for approval.</p>
         </div>
-        <ActionButton variant="secondary" label="View full queue" />
+        <ActionButton variant="secondary" label="View full queue" onClick={() => navigate('/moderation')} />
       </div>
       <div className="mt-6 overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
@@ -84,8 +120,20 @@ const ModerationQueue: React.FC = () => {
                 </td>
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-2">
-                    <ActionButton variant="secondary" label="Approve" />
-                    <ActionButton variant="outline" label="Reject" />
+                    <ActionButton
+                      variant="secondary"
+                      label="Approve"
+                      startIcon={<CheckCircle className="h-4 w-4" />}
+                      onClick={() => handleApprove(property.id)}
+                      disabled={processingId === property.id || approveMutation.isPending || rejectMutation.isPending}
+                    />
+                    <ActionButton
+                      variant="outline"
+                      label="Reject"
+                      startIcon={<XCircle className="h-4 w-4" />}
+                      onClick={() => handleReject(property.id)}
+                      disabled={processingId === property.id || approveMutation.isPending || rejectMutation.isPending}
+                    />
                   </div>
                 </td>
               </tr>
@@ -98,5 +146,3 @@ const ModerationQueue: React.FC = () => {
 };
 
 export default ModerationQueue;
-
-

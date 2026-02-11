@@ -2,7 +2,6 @@ import api from '../lib/api';
 import type {
   ModerationOverviewResponse,
   ModerationReviewsResponse,
-  ModerationListingsResponse,
   ModerationKycResponse,
   ModerationPaymentsResponse,
   ModerationKycUpdatePayload,
@@ -26,11 +25,18 @@ export const moderationService = {
   },
 
   async getListings(params?: Record<string, unknown>) {
-    const response = await api.get<{ success: boolean; data: ModerationListingsResponse }>(
+    const response = await api.get<{
+      success: boolean;
+      data: { listings: any[]; pagination: any }
+    }>(
       '/admin/dashboard/moderation/listings',
       { params }
     );
-    return response.data.data;
+    // API returns listings directly
+    return {
+      listings: response.data.data.listings,
+      pagination: response.data.data.pagination
+    };
   },
 
   async getKycDocuments(params?: Record<string, unknown>) {
@@ -52,6 +58,33 @@ export const moderationService = {
   async updateKycDocument(documentId: string, payload: ModerationKycUpdatePayload) {
     const response = await api.put<{ success: boolean; data: ModerationKycItem; message?: string }>(
       `/admin/dashboard/moderation/kyc/${documentId}`,
+      payload
+    );
+    return response.data;
+  },
+
+  async approveProperty(propertyId: string, notes?: string) {
+    const payload = {
+      status: 'active' as const,
+      moderationNotes: notes
+    };
+
+    const response = await api.put<{ success: boolean; message: string; data: unknown }>(
+      `/admin/dashboard/properties/${propertyId}/moderate`,
+      payload
+    );
+    return response.data;
+  },
+
+  async rejectProperty(propertyId: string, reason: string, notes?: string) {
+    const payload = {
+      status: 'rejected' as const,
+      rejectionReason: reason,
+      moderationNotes: notes
+    };
+
+    const response = await api.put<{ success: boolean; message: string; data: unknown }>(
+      `/admin/dashboard/properties/${propertyId}/moderate`,
       payload
     );
     return response.data;

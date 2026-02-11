@@ -68,4 +68,41 @@ export const useModerationKycUpdate = () => {
   });
 };
 
+/**
+ * Hook to approve a property in moderation queue
+ */
+export const useApproveProperty = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ propertyId, notes }: { propertyId: string; notes?: string }) => {
+      return moderationService.approveProperty(propertyId, notes);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [MODERATION_KEY, 'listings'] });
+      queryClient.invalidateQueries({ queryKey: [MODERATION_KEY, 'overview'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-properties'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-properties'] });
+    }
+  });
+};
+
+/**
+ * Hook to reject a property in moderation queue
+ */
+export const useRejectProperty = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ propertyId, reason, notes }: { propertyId: string; reason: string; notes?: string }) => {
+      return moderationService.rejectProperty(propertyId, reason, notes);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [MODERATION_KEY, 'listings'] });
+      queryClient.invalidateQueries({ queryKey: [MODERATION_KEY, 'overview'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-properties'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-properties'] });
+    }
+  });
+};
 

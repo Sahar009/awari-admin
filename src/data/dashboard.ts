@@ -4,23 +4,23 @@ import {
   Building2,
   Shield,
   Wallet,
-  FileText,
   TrendingUp,
   Settings,
-  Layers,
   ArrowDownRight,
-  DollarSign
+  DollarSign,
+  Calendar
 } from 'lucide-react';
 
 export const navigation = [
   { name: 'Overview', icon: BarChart3, path: '/', badge: 'Live' },
   { name: 'Users', icon: Users, path: '/users' },
   { name: 'Properties', icon: Building2, path: '/properties' },
+  { name: 'Bookings', icon: Calendar, path: '/bookings' },
   { name: 'Moderation', icon: Shield, path: '/moderation' },
   { name: 'Transactions', icon: Wallet, path: '/transactions' },
   { name: 'Withdrawals', icon: ArrowDownRight, path: '/withdrawals' },
-  { name: 'Subscriptions', icon: FileText, path: '/subscriptions' },
-  { name: 'Plans', icon: Layers, path: '/subscription-plans' },
+  // { name: 'Subscriptions', icon: FileText, path: '/subscriptions' },
+  // { name: 'Plans', icon: Layers, path: '/subscription-plans' },
   { name: 'Reports', icon: TrendingUp, path: '/reports' },
   { name: 'Booking Fees', icon: DollarSign, path: '/booking-fees' },
   { name: 'Settings', icon: Settings, path: '/settings' }
@@ -44,7 +44,7 @@ export const quickActions = [
 export const systemHealth = [
   { name: 'Email service', status: 'Operational' },
   { name: 'Realtime messaging', status: 'Operational' },
-  { name: 'Payments gateway', status: 'Degraded' },
+  { name: 'Payments gateway', status: 'Operational' },
   { name: 'Notification queue', status: 'Operational' }
 ];
 

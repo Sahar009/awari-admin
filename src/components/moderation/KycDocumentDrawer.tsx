@@ -104,7 +104,7 @@ const KycDocumentDrawer = ({ isOpen, document, isSaving, onClose, onSave, feedba
       <div className="hidden flex-1 bg-slate-900/40 backdrop-blur-sm md:block" onClick={onClose} />
       <div className="ml-auto flex h-full w-full max-w-3xl flex-col overflow-y-auto border-l border-slate-200 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-4 dark:border-slate-800 dark:bg-slate-950/80">
-          <div>
+        hhhh  <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-indigo-500">KYC review</p>
             <h2 className="mt-1 text-xl font-semibold text-slate-900 dark:text-white">
               {document?.user ? `${document.user.firstName} ${document.user.lastName}` : 'KYC document'}

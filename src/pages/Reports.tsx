@@ -6,17 +6,16 @@ import {
   Building2,
   RefreshCw,
   BookOpen,
-  Sparkles,
   PieChart,
   Layers
 } from 'lucide-react';
 import { useReportsMetrics } from '../hooks/useReports';
 import { ActionButton } from '../components/ui/ActionButton';
+import LineChart from '../components/charts/LineChart';
+import StackedBarChart from '../components/charts/StackedBarChart';
 import type {
-  ReportsBookingPoint,
   ReportsMetricsResponse,
-  ReportsRevenuePoint,
-  ReportsUserGrowthPoint
+  ReportsRevenuePoint
 } from '../services/types';
 
 const formatCurrency = (value: number) =>
@@ -27,120 +26,6 @@ const formatCurrency = (value: number) =>
   }).format(value || 0);
 
 const formatNumber = (value: number) => value.toLocaleString();
-
-interface SimpleLineChartProps<T> {
-  data: T[];
-  valueAccessor: (point: T) => number;
-  labelAccessor: (point: T) => string;
-  primaryColor: string;
-  gradientId: string;
-}
-
-const SimpleLineChart = <T,>({ data, valueAccessor, labelAccessor, primaryColor, gradientId }: SimpleLineChartProps<T>) => {
-  if (!data.length) {
-    return <div className="flex h-56 items-center justify-center text-sm text-slate-500 dark:text-slate-400">No data</div>;
-  }
-
-  const values = data.map((point) => valueAccessor(point));
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  const range = max - min || 1;
-
-  const pathPoints = data.map((point, index) => {
-    const x = data.length === 1 ? 50 : (index / (data.length - 1)) * 100;
-    const normalized = (valueAccessor(point) - min) / range;
-    const y = 90 - normalized * 70; // leave padding top/bottom
-    return `${x},${y}`;
-  });
-
-  const polygonPoints = [`0,100`, `100,100`, ...pathPoints.slice().reverse()];
-
-  return (
-    <svg viewBox="0 0 100 100" className="h-56 w-full" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor={primaryColor} stopOpacity={0.25} />
-          <stop offset="100%" stopColor={primaryColor} stopOpacity={0} />
-        </linearGradient>
-      </defs>
-      <polyline
-        fill="none"
-        stroke="rgba(148, 163, 184, 0.35)"
-        strokeWidth="0.4"
-        points="0,90 100,90"
-      />
-      <polyline fill="none" stroke={`rgba(148, 163, 184, 0.25)`} strokeWidth="0.4" points="0,20 100,20" />
-      <polygon points={polygonPoints.join(' ')} fill={`url(#${gradientId})`} />
-      <polyline
-        fill="none"
-        stroke={primaryColor}
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        points={pathPoints.join(' ')}
-      />
-      {data.map((point, index) => {
-        const x = data.length === 1 ? 50 : (index / (data.length - 1)) * 100;
-        const label = labelAccessor(point);
-        const value = valueAccessor(point);
-        const normalized = (value - min) / range;
-        const y = 90 - normalized * 70;
-        return (
-          <g key={index}>
-            <circle cx={x} cy={y} r={1.3} fill={primaryColor} />
-            <text x={x} y={96} fontSize={3} textAnchor="middle" fill="currentColor">
-              {label.split(' ')[0]}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-};
-
-interface StackedBarChartProps {
-  data: ReportsBookingPoint[];
-}
-
-const StackedBarChart = ({ data }: StackedBarChartProps) => {
-  if (!data.length) {
-    return <div className="flex h-56 items-center justify-center text-sm text-slate-500 dark:text-slate-400">No data</div>;
-  }
-
-  const maxTotal = Math.max(...data.map((item) => Math.max(item.total, 0.1)));
-
-  return (
-    <div className="flex h-56 items-end justify-between gap-2">
-      {data.map((item) => {
-        const shortletRatio = item.total ? item.shortlet / maxTotal : 0;
-        const rentalRatio = item.total ? item.rental / maxTotal : 0;
-        const saleRatio = item.total ? item.saleInspection / maxTotal : 0;
-        return (
-          <div key={item.month} className="flex w-full max-w-[80px] flex-col items-center gap-2">
-            <div className="flex h-44 w-full flex-col justify-end overflow-hidden rounded-2xl border border-slate-200/60 bg-slate-50/70 dark:border-slate-800/60 dark:bg-slate-900/60">
-              <div
-                className="bg-amber-400/70 dark:bg-amber-400/60"
-                style={{ height: `${Math.max(saleRatio * 100, 1)}%` }}
-                title={`Sale inspections: ${item.saleInspection}`}
-              />
-              <div
-                className="bg-emerald-400/70 dark:bg-emerald-400/60"
-                style={{ height: `${Math.max(rentalRatio * 100, 1)}%` }}
-                title={`Rentals: ${item.rental}`}
-              />
-              <div
-                className="bg-indigo-500/70 dark:bg-indigo-500/60"
-                style={{ height: `${Math.max(shortletRatio * 100, 1)}%` }}
-                title={`Shortlets: ${item.shortlet}`}
-              />
-            </div>
-            <span className="text-xs text-slate-500 dark:text-slate-400">{item.label.replace(/\s.*/, '')}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
 
 interface BreakdownListProps {
   title: string;
@@ -204,7 +89,6 @@ const ReportsPage = () => {
   const metrics = data as ReportsMetricsResponse | undefined;
 
   const totals = metrics?.insights.totals;
-  const reviewInsights = metrics?.insights.reviewModeration;
 
   const userGrowth = metrics?.charts.userGrowth ?? [];
   const revenueTrend = metrics?.charts.revenueTrend ?? [];
@@ -288,12 +172,12 @@ const ReportsPage = () => {
                 </div>
                 <span className="text-xs text-slate-500 dark:text-slate-400">{userGrowth.length} points</span>
               </div>
-              <SimpleLineChart<ReportsUserGrowthPoint>
-                data={userGrowth}
-                valueAccessor={(point) => point.count}
-                labelAccessor={(point) => point.label}
-                primaryColor="rgba(79, 70, 229, 1)"
-                gradientId="user-growth"
+              <LineChart
+                data={userGrowth.map((point) => point.count)}
+                labels={userGrowth.map((point) => point.label)}
+                label="User growth"
+                color="rgba(79, 70, 229, 1)"
+                gradientColor="rgba(79, 70, 229, 0.1)"
               />
             </div>
 
@@ -307,12 +191,12 @@ const ReportsPage = () => {
                   (revenueTrend as ReportsRevenuePoint[]).reduce((sum, point) => sum + point.amount, 0)
                 )}</span>
               </div>
-              <SimpleLineChart<ReportsRevenuePoint>
-                data={revenueTrend}
-                valueAccessor={(point) => point.amount}
-                labelAccessor={(point) => point.label}
-                primaryColor="rgba(16, 185, 129, 1)"
-                gradientId="revenue-trend"
+              <LineChart
+                data={revenueTrend.map((point) => point.amount)}
+                labels={revenueTrend.map((point) => point.label)}
+                label="Revenue trend"
+                color="rgba(16, 185, 129, 1)"
+                gradientColor="rgba(16, 185, 129, 0.1)"
               />
             </div>
           </section>
@@ -325,7 +209,26 @@ const ReportsPage = () => {
               </div>
               <span className="text-xs text-slate-500 dark:text-slate-400">By booking type</span>
             </div>
-            <StackedBarChart data={bookingTrend} />
+            <StackedBarChart
+              labels={bookingTrend.map((item) => item.label)}
+              datasets={[
+                {
+                  label: 'Shortlet',
+                  data: bookingTrend.map((item) => item.shortlet),
+                  backgroundColor: 'rgba(79, 70, 229, 0.7)'
+                },
+                {
+                  label: 'Rental',
+                  data: bookingTrend.map((item) => item.rental),
+                  backgroundColor: 'rgba(16, 185, 129, 0.7)'
+                },
+                {
+                  label: 'Sale inspection',
+                  data: bookingTrend.map((item) => item.saleInspection),
+                  backgroundColor: 'rgba(251, 191, 36, 0.7)'
+                }
+              ]}
+            />
             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-indigo-500" /> Shortlet
@@ -357,7 +260,7 @@ const ReportsPage = () => {
             />
           </section>
 
-          <section className="grid gap-4 lg:grid-cols-2">
+          {/* <section className="grid gap-4 lg:grid-cols-2">
             <BreakdownList
               title="Listings by offering"
               data={breakdowns?.propertyByListingType ?? {}}
@@ -368,24 +271,9 @@ const ReportsPage = () => {
               data={breakdowns?.subscriptionStatus ?? {}}
               palette={["bg-indigo-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500"]}
             />
-          </section>
+          </section> */}
 
-          <section className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70">
-            <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-              <Sparkles className="h-4 w-4 text-indigo-500" />
-              Moderation queue overview
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-900/50">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Flagged reviews</p>
-                <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{formatNumber(reviewInsights?.flaggedReviews ?? 0)}</p>
-              </div>
-              <div className="rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-800/60 dark:bg-slate-900/50">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Pending moderation</p>
-                <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{formatNumber(reviewInsights?.pendingReviews ?? 0)}</p>
-              </div>
-            </div>
-          </section>
+
         </>
       )}
     </div>

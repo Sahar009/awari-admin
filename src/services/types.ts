@@ -191,6 +191,11 @@ export interface AdminUserOwnedProperty {
   city?: string | null;
   state?: string | null;
   createdAt: string;
+  media?: Array<{
+    url: string;
+    thumbnailUrl?: string | null;
+    isPrimary: boolean;
+  }>;
 }
 
 export interface AdminUserBookingProperty {
@@ -231,6 +236,9 @@ export interface AdminUserKycDocument {
   status: string;
   verifiedAt?: string | null;
   createdAt: string;
+  documentUrl: string;
+  documentThumbnail?: string | null;
+  documentNumber?: string | null;
 }
 
 export interface AdminUserReview {
@@ -240,6 +248,28 @@ export interface AdminUserReview {
   status: string;
   createdAt: string;
   property?: AdminUserBookingProperty | null;
+}
+
+export interface AdminUserWallet {
+  availableBalance: number;
+  pendingBalance: number;
+  currency: string;
+  status: string;
+  accountNumber?: string | null;
+  accountName?: string | null;
+  bankName?: string | null;
+  bankCode?: string | null;
+  walletAddress?: string | null;
+}
+
+export interface AdminUserWalletTransaction {
+  id: string;
+  type: string;
+  amount: number;
+  currency: string;
+  status: string;
+  description?: string | null;
+  createdAt: string;
 }
 
 export interface AdminUserProfile extends AdminUserListItem {
@@ -265,6 +295,8 @@ export interface AdminUserProfile extends AdminUserListItem {
   subscriptions?: AdminUserSubscription[];
   kycDocuments?: AdminUserKycDocument[];
   reviews?: AdminUserReview[];
+  wallet?: AdminUserWallet;
+  walletTransactions?: AdminUserWalletTransaction[];
 }
 
 export interface AdminUserSummary {
@@ -273,6 +305,9 @@ export interface AdminUserSummary {
   activeBookings: number;
   totalReviews: number;
   activeSubscriptions: number;
+  walletBalance?: number;
+  pendingWalletBalance?: number;
+  currency?: string;
 }
 
 export interface AdminUserDetailResponse {
@@ -310,7 +345,7 @@ export interface ModerationOverview {
   paymentDisputes: number;
 }
 
-export interface ModerationOverviewResponse extends ModerationOverview {}
+export interface ModerationOverviewResponse extends ModerationOverview { }
 
 export interface ModerationReviewItem {
   id: string;

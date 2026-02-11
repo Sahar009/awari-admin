@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Eye, Loader, Star } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Eye, Loader, Star } from 'lucide-react';
 import type { AdminProperty, PaginationMeta } from '../../services/types';
 import { ActionButton } from '../ui/ActionButton';
 import PropertyStatusBadge from './PropertyStatusBadge';
@@ -25,6 +25,7 @@ interface PropertyTableProps {
   onView: (propertyId: string) => void;
   onAction: (property: AdminProperty, action: PropertyAction) => void;
   onToggleFeature: (property: AdminProperty, nextFeaturedState: boolean) => void;
+  onViewAvailability?: (property: AdminProperty) => void;
   statusMutationPending?: { propertyId: string; action: PropertyAction } | null;
   featureMutationPending?: string | null;
 }
@@ -110,6 +111,7 @@ export const PropertyTable = ({
   onView,
   onAction,
   onToggleFeature,
+  onViewAvailability,
   statusMutationPending,
   featureMutationPending
 }: PropertyTableProps) => {
@@ -229,6 +231,14 @@ export const PropertyTable = ({
                     onClick={() => onToggleFeature(property, !property.featured)}
                     disabled={isFeatureMutating || isStatusMutating}
                   />
+                  {onViewAvailability && property.listingType === 'shortlet' && (
+                    <ActionButton
+                      variant="outline"
+                      label="Availability"
+                      startIcon={<Calendar className="h-4 w-4" />}
+                      onClick={() => onViewAvailability(property)}
+                    />
+                  )}
                 </div>
               </td>
 
@@ -258,6 +268,7 @@ export const PropertyTable = ({
     onAction,
     onToggleFeature,
     onView,
+    onViewAvailability,
     pendingStatusId,
     properties,
     isLoading

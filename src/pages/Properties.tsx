@@ -11,6 +11,7 @@ import PropertyFilters, { type PropertyFiltersState } from '../components/proper
 import PropertyTable, { type PropertyAction } from '../components/properties/PropertyTable';
 import PropertyModerationDialog from '../components/properties/PropertyModerationDialog';
 import PropertyDetailsDrawer from '../components/properties/PropertyDetailsDrawer';
+import PropertyAvailabilityCalendar from '../components/PropertyAvailabilityCalendar';
 
 const PAGE_SIZE = 10;
 
@@ -55,6 +56,7 @@ const PropertiesPage = () => {
   );
   const [pendingFeatureId, setPendingFeatureId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [calendarProperty, setCalendarProperty] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     if (!feedback) return;
@@ -226,15 +228,20 @@ const PropertiesPage = () => {
 
   const closeDetails = () => setSelectedPropertyId(null);
 
+  const handleViewAvailability = (property: AdminProperty) => {
+    setCalendarProperty({ id: property.id, title: property.title });
+  };
+
+  const closeCalendar = () => setCalendarProperty(null);
+
   return (
     <div className="space-y-8">
       {feedback ? (
         <div
-          className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-            feedback.type === 'success'
-              ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/15 dark:text-emerald-200'
-              : 'border-rose-400/40 bg-rose-500/10 text-rose-600 dark:border-rose-400/30 dark:bg-rose-400/15 dark:text-rose-200'
-          }`}
+          className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedback.type === 'success'
+            ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/15 dark:text-emerald-200'
+            : 'border-rose-400/40 bg-rose-500/10 text-rose-600 dark:border-rose-400/30 dark:bg-rose-400/15 dark:text-rose-200'
+            }`}
         >
           {feedback.message}
         </div>
@@ -255,6 +262,7 @@ const PropertiesPage = () => {
         onView={handleView}
         onAction={handleAction}
         onToggleFeature={runFeatureMutation}
+        onViewAvailability={handleViewAvailability}
         statusMutationPending={pendingStatusAction}
         featureMutationPending={pendingFeatureId}
       />
@@ -274,6 +282,15 @@ const PropertiesPage = () => {
         isLoading={isDetailLoading}
         onClose={closeDetails}
       />
+
+      {/* Property Availability Calendar */}
+      {calendarProperty && (
+        <PropertyAvailabilityCalendar
+          propertyId={calendarProperty.id}
+          propertyTitle={calendarProperty.title}
+          onClose={closeCalendar}
+        />
+      )}
     </div>
   );
 };

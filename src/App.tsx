@@ -16,6 +16,7 @@ import PlansPage from './pages/Plans';
 import ReportsPage from './pages/Reports';
 import SettingsPage from './pages/Settings';
 import BookingFeesSettings from './pages/BookingFeesSettings';
+import BookingsPage from './pages/Bookings';
 import { useAdminAuth } from './context/AdminAuthContext';
 import LoginForm from './components/auth/LoginForm';
 
@@ -89,6 +90,7 @@ function App() {
                 <Route path="/" element={<OverviewPage />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/properties" element={<PropertiesPage />} />
+                <Route path="/bookings" element={<BookingsPage />} />
                 <Route path="/moderation" element={<ModerationPage />} />
                 <Route path="/transactions" element={<TransactionsPage />} />
                 <Route path="/withdrawals" element={<WithdrawalsPage />} />

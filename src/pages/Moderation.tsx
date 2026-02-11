@@ -1,12 +1,14 @@
-import { useMemo, useState, type ComponentType } from 'react';
-import { AlertTriangle, Filter, Loader, ShieldAlert, Star, Building2, CreditCard, IdCard } from 'lucide-react';
+import { useMemo, useState, useEffect, type ComponentType } from 'react';
+import { AlertTriangle, Filter, Loader, ShieldAlert, Star, Building2, CreditCard, IdCard, CheckCircle, XCircle } from 'lucide-react';
 import {
   useModerationOverview,
   useModerationReviews,
   useModerationListings,
   useModerationKyc,
   useModerationPayments,
-  useModerationKycUpdate
+  useModerationKycUpdate,
+  useApproveProperty,
+  useRejectProperty
 } from '../hooks/useModeration';
 import { ActionButton } from '../components/ui/ActionButton';
 import type {
@@ -98,6 +100,11 @@ const ModerationPage = () => {
   const [listingPage, setListingPage] = useState(1);
   const [listingStatus, setListingStatus] = useState<'pending' | 'rejected' | 'archived' | 'flagged' | 'all'>('pending');
   const [listingType, setListingType] = useState<'all' | 'rent' | 'sale' | 'shortlet'>('all');
+  const [selectedListing, setSelectedListing] = useState<ModerationListingItem | null>(null);
+  const [listingAction, setListingAction] = useState<'approve' | 'reject' | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [moderationNotes, setModerationNotes] = useState('');
+  const [listingFeedback, setListingFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const [kycPage, setKycPage] = useState(1);
   const [kycStatus, setKycStatus] = useState<'pending' | 'approved' | 'rejected' | 'expired'>('pending');
@@ -115,6 +122,7 @@ const ModerationPage = () => {
   });
   const listingQuery = useModerationListings({
     page: listingPage,
+    limit: 20,
     status: listingStatus === 'all' ? undefined : listingStatus,
     listingType: listingType === 'all' ? undefined : listingType
   });
@@ -127,6 +135,8 @@ const ModerationPage = () => {
     status: paymentStatus
   });
   const kycUpdateMutation = useModerationKycUpdate();
+  const approveMutation = useApproveProperty();
+  const rejectMutation = useRejectProperty();
 
   const {
     data: reviewData,
@@ -213,6 +223,59 @@ const ModerationPage = () => {
     setKycFeedback(null);
   };
 
+  const handleListingApprove = (listing: ModerationListingItem) => {
+    setSelectedListing(listing);
+    setListingAction('approve');
+    setModerationNotes('');
+    setListingFeedback(null);
+  };
+
+  const handleListingReject = (listing: ModerationListingItem) => {
+    setSelectedListing(listing);
+    setListingAction('reject');
+    setRejectionReason('');
+    setModerationNotes('');
+    setListingFeedback(null);
+  };
+
+  const handleListingActionConfirm = () => {
+    if (!selectedListing) return;
+
+    if (listingAction === 'approve') {
+      approveMutation.mutate(
+        { propertyId: selectedListing.id, notes: moderationNotes || undefined },
+        {
+          onSuccess: (response) => {
+            setListingFeedback({ type: 'success', message: response.message || 'Property approved successfully' });
+            setSelectedListing(null);
+            setListingAction(null);
+          },
+          onError: (error: any) => {
+            setListingFeedback({ type: 'error', message: error?.response?.data?.message || 'Failed to approve property' });
+          }
+        }
+      );
+    } else if (listingAction === 'reject') {
+      if (!rejectionReason.trim()) {
+        setListingFeedback({ type: 'error', message: 'Rejection reason is required' });
+        return;
+      }
+      rejectMutation.mutate(
+        { propertyId: selectedListing.id, reason: rejectionReason, notes: moderationNotes || undefined },
+        {
+          onSuccess: (response) => {
+            setListingFeedback({ type: 'success', message: response.message || 'Property rejected successfully' });
+            setSelectedListing(null);
+            setListingAction(null);
+          },
+          onError: (error: any) => {
+            setListingFeedback({ type: 'error', message: error?.response?.data?.message || 'Failed to reject property' });
+          }
+        }
+      );
+    }
+  };
+
   const handleKycSave = (payload: ModerationKycUpdatePayload) => {
     if (!selectedKycDocument) return;
     setKycFeedback(null);
@@ -235,6 +298,12 @@ const ModerationPage = () => {
       }
     );
   };
+
+  useEffect(() => {
+    if (!listingFeedback) return;
+    const timer = setTimeout(() => setListingFeedback(null), 4000);
+    return () => clearTimeout(timer);
+  }, [listingFeedback]);
 
   return (
     <div className="space-y-8">
@@ -367,6 +436,16 @@ const ModerationPage = () => {
         title="Listing moderation"
         description="Properties awaiting approval or flagged by the community for policy review."
       >
+        {listingFeedback && (
+          <div
+            className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${listingFeedback.type === 'success'
+              ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/15 dark:text-emerald-200'
+              : 'border-rose-400/40 bg-rose-500/10 text-rose-600 dark:border-rose-400/30 dark:bg-rose-400/15 dark:text-rose-200'
+              }`}
+          >
+            {listingFeedback.message}
+          </div>
+        )}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <select
@@ -414,12 +493,13 @@ const ModerationPage = () => {
                 <th className="px-4 py-3 text-left font-semibold">Status</th>
                 <th className="px-4 py-3 text-left font-semibold">Notes</th>
                 <th className="px-4 py-3 text-left font-semibold">Updated</th>
+                <th className="px-4 py-3 text-left font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {isListingsLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-sm text-slate-500 dark:text-slate-400">
+                  <td colSpan={6} className="px-4 py-12 text-center text-sm text-slate-500 dark:text-slate-400">
                     <Loader className="mx-auto h-5 w-5 animate-spin text-indigo-500" />
                   </td>
                 </tr>
@@ -443,11 +523,31 @@ const ModerationPage = () => {
                       {listing.rejectionReason || listing.moderationNotes || '—'}
                     </td>
                     <td className="px-4 py-4 text-xs text-slate-500 dark:text-slate-400">{formatDate(listing.updatedAt)}</td>
+                    <td className="px-4 py-4">
+                      {listing.status === 'pending' && (
+                        <div className="flex items-center gap-2">
+                          <ActionButton
+                            variant="secondary"
+                            label="Approve"
+                            startIcon={<CheckCircle className="h-4 w-4" />}
+                            onClick={() => handleListingApprove(listing)}
+                            disabled={approveMutation.isPending || rejectMutation.isPending}
+                          />
+                          <ActionButton
+                            variant="outline"
+                            label="Reject"
+                            startIcon={<XCircle className="h-4 w-4" />}
+                            onClick={() => handleListingReject(listing)}
+                            disabled={approveMutation.isPending || rejectMutation.isPending}
+                          />
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
                     No listings match the current filters.
                   </td>
                 </tr>
@@ -698,6 +798,81 @@ const ModerationPage = () => {
           </div>
         ) : null}
       </SectionContainer>
+
+      {/* Property Moderation Dialog */}
+      {selectedListing && listingAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+              {listingAction === 'approve' ? 'Approve Property' : 'Reject Property'}
+            </h3>
+
+            <div className="mb-4">
+              <p className="mb-2 text-sm text-slate-600 dark:text-slate-300">
+                <span className="font-medium">Property:</span> {selectedListing.title}
+              </p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                <span className="font-medium">Owner:</span>{' '}
+                {selectedListing.owner
+                  ? `${selectedListing.owner.firstName} ${selectedListing.owner.lastName}`
+                  : 'Unknown'}
+              </p>
+            </div>
+
+            {listingAction === 'reject' && (
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Rejection Reason *
+                </label>
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="Explain why this property is being rejected..."
+                  rows={3}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
+                />
+              </div>
+            )}
+
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Moderation Notes (Optional)
+              </label>
+              <textarea
+                value={moderationNotes}
+                onChange={(e) => setModerationNotes(e.target.value)}
+                placeholder="Add any internal notes..."
+                rows={2}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <ActionButton
+                variant="outline"
+                label="Cancel"
+                onClick={() => {
+                  setSelectedListing(null);
+                  setListingAction(null);
+                }}
+                disabled={approveMutation.isPending || rejectMutation.isPending}
+              />
+              <ActionButton
+                variant={listingAction === 'approve' ? 'secondary' : 'outline'}
+                label={
+                  approveMutation.isPending || rejectMutation.isPending
+                    ? 'Processing...'
+                    : listingAction === 'approve'
+                      ? 'Confirm Approval'
+                      : 'Confirm Rejection'
+                }
+                onClick={handleListingActionConfirm}
+                disabled={approveMutation.isPending || rejectMutation.isPending}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

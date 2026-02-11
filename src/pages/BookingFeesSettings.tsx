@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Save, RefreshCw, Loader, Plus, Trash2, Building2 } from 'lucide-react';
+import { DollarSign, Save, RefreshCw, Loader, Plus, Trash2, Building2, Edit } from 'lucide-react';
 import { ActionButton } from '../components/ui/ActionButton';
 import api from '../lib/api';
 
@@ -35,7 +35,9 @@ const BookingFeesSettings = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
-    
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingFee, setEditingFee] = useState<FeeConfig | null>(null);
+
     // New fee form state
     const [newFee, setNewFee] = useState({
         feeType: 'service_fee' as FeeConfig['feeType'],
@@ -136,6 +138,42 @@ const BookingFeesSettings = () => {
 
     const toggleFeeStatus = async (feeId: string, currentStatus: boolean) => {
         await updateFee(feeId, { isActive: !currentStatus });
+    };
+
+    const openEditModal = (fee: FeeConfig) => {
+        setEditingFee(fee);
+        setShowEditModal(true);
+        setError('');
+        setSuccess('');
+    };
+
+    const handleEditFee = async () => {
+        if (!editingFee) return;
+
+        setIsSaving(true);
+        setError('');
+        setSuccess('');
+
+        try {
+            await api.put(`/booking-fees/${editingFee.id}`, {
+                feeType: editingFee.feeType,
+                valueType: editingFee.valueType,
+                value: editingFee.value,
+                propertyType: editingFee.propertyType,
+                description: editingFee.description,
+                isActive: editingFee.isActive
+            });
+
+            setSuccess('Fee updated successfully!');
+            setShowEditModal(false);
+            setEditingFee(null);
+            await fetchFees();
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to update fee');
+            console.error('Error updating fee:', err);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     if (isLoading) {
@@ -257,11 +295,10 @@ const BookingFeesSettings = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <button
                                                 onClick={() => toggleFeeStatus(fee.id, fee.isActive)}
-                                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                    fee.isActive
-                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                                                }`}
+                                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${fee.isActive
+                                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                                                    }`}
                                             >
                                                 {fee.isActive ? 'Active' : 'Inactive'}
                                             </button>
@@ -272,13 +309,24 @@ const BookingFeesSettings = () => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                onClick={() => deleteFee(fee.id)}
-                                                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                                disabled={isSaving}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
+                                            <div className="flex items-center justify-end gap-3">
+                                                <button
+                                                    onClick={() => openEditModal(fee)}
+                                                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                    disabled={isSaving}
+                                                    title="Edit fee"
+                                                >
+                                                    <Edit className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteFee(fee.id)}
+                                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                                    disabled={isSaving}
+                                                    title="Delete fee"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -395,6 +443,136 @@ const BookingFeesSettings = () => {
                                 startIcon={isSaving ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                                 onClick={createFee}
                                 disabled={isSaving || newFee.value <= 0}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Fee Modal */}
+            {showEditModal && editingFee && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Edit Fee Configuration</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                Update the fee configuration details
+                            </p>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Fee Type *
+                                    </label>
+                                    <select
+                                        value={editingFee.feeType}
+                                        onChange={(e) => setEditingFee({ ...editingFee, feeType: e.target.value as FeeConfig['feeType'] })}
+                                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                    >
+                                        <option value="service_fee">AWARI Service Fee</option>
+                                        <option value="agency_fee">Agency Fee</option>
+                                        <option value="damage_fee">Damage/Security Fee</option>
+                                        <option value="tax">Tax</option>
+                                        <option value="platform_fee">Platform Fee</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Property Type
+                                    </label>
+                                    <select
+                                        value={editingFee.propertyType || ''}
+                                        onChange={(e) => setEditingFee({ ...editingFee, propertyType: e.target.value as any || null })}
+                                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                    >
+                                        <option value="">All Property Types</option>
+                                        <option value="rent">Rental Properties</option>
+                                        <option value="sale">Properties for Sale</option>
+                                        <option value="shortlet">Short-let Properties</option>
+                                        <option value="hotel">Hotel Bookings</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Value Type *
+                                    </label>
+                                    <select
+                                        value={editingFee.valueType}
+                                        onChange={(e) => setEditingFee({ ...editingFee, valueType: e.target.value as 'percentage' | 'fixed' })}
+                                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                    >
+                                        <option value="percentage">Percentage (%)</option>
+                                        <option value="fixed">Fixed Amount (₦)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Value *
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max={editingFee.valueType === 'percentage' ? 100 : undefined}
+                                        step={editingFee.valueType === 'percentage' ? 0.1 : 1}
+                                        value={editingFee.value}
+                                        onChange={(e) => setEditingFee({ ...editingFee, value: Number(e.target.value) })}
+                                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                        placeholder={editingFee.valueType === 'percentage' ? '10' : '5000'}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    Description (Optional)
+                                </label>
+                                <textarea
+                                    value={editingFee.description || ''}
+                                    onChange={(e) => setEditingFee({ ...editingFee, description: e.target.value })}
+                                    rows={3}
+                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                    placeholder="Additional details about this fee..."
+                                />
+                            </div>
+
+                            <div>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={editingFee.isActive}
+                                        onChange={(e) => setEditingFee({ ...editingFee, isActive: e.target.checked })}
+                                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        Active
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div className="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowEditModal(false);
+                                    setEditingFee(null);
+                                }}
+                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-700"
+                                disabled={isSaving}
+                            >
+                                Cancel
+                            </button>
+                            <ActionButton
+                                label={isSaving ? 'Updating...' : 'Update Fee'}
+                                startIcon={isSaving ? <Loader className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                onClick={handleEditFee}
+                                disabled={isSaving || editingFee.value <= 0}
                             />
                         </div>
                     </div>
