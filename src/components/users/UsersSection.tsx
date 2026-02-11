@@ -40,9 +40,15 @@ const roleOptions = [
 
 const extractErrorMessage = (error: unknown) => {
   if (error && typeof error === 'object' && 'response' in error) {
-    const response = (error as { response?: { data?: { message?: string } } }).response;
-    if (response?.data?.message) {
-      return response.data.message;
+    const errorData = (error as { response?: { data?: { message?: string, errors?: Array<{ msg: string }> } } }).response?.data;
+
+    // Check for validation errors array
+    if (errorData?.errors && Array.isArray(errorData.errors)) {
+      return errorData.errors.map(err => err.msg).join('. ');
+    }
+
+    if (errorData?.message) {
+      return errorData.message;
     }
   }
   if (error instanceof Error) {
@@ -207,11 +213,10 @@ const UsersSection: React.FC = () => {
 
       {sectionFeedback ? (
         <div
-          className={`mt-4 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
-            sectionFeedback.type === 'success'
+          className={`mt-4 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${sectionFeedback.type === 'success'
               ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200'
               : 'border-rose-500/40 bg-rose-500/10 text-rose-500 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200'
-          }`}
+            }`}
         >
           {sectionFeedback.message}
         </div>
