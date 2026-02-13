@@ -8,7 +8,8 @@ import {
   Settings,
   ArrowDownRight,
   DollarSign,
-  Calendar
+  Calendar,
+  SlidersHorizontal
 } from 'lucide-react';
 
 export const navigation = [
@@ -23,6 +24,7 @@ export const navigation = [
   // { name: 'Plans', icon: Layers, path: '/subscription-plans' },
   { name: 'Reports', icon: TrendingUp, path: '/reports' },
   { name: 'Booking Fees', icon: DollarSign, path: '/booking-fees' },
+  { name: 'Booking Config', icon: SlidersHorizontal, path: '/booking-config' },
   { name: 'Settings', icon: Settings, path: '/settings' }
 ];
 
