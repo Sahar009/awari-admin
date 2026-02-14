@@ -18,6 +18,7 @@ import {
     Copy,
     CreditCard,
     Wallet,
+    Loader,
     Home,
     Users,
     FileText
@@ -179,6 +180,13 @@ export default function BookingsPage() {
         transactionId: ''
     });
 
+    const [actionLoading, setActionLoading] = useState({
+        confirm: false,
+        cancel: false,
+        reject: false,
+        approve: false
+    });
+
     const [filters, setFilters] = useState({
         status: '',
         paymentStatus: '',
@@ -272,6 +280,53 @@ export default function BookingsPage() {
         } catch (error: any) {
             console.error('Error rejecting booking:', error);
             alert(error.response?.data?.message || 'Failed to reject booking');
+        }
+    };
+
+    const handleConfirm = async (bookingId: string) => {
+        if (!confirm('Are you sure you want to confirm this booking?')) return;
+
+        try {
+            setActionLoading(prev => ({ ...prev, confirm: true }));
+            const response = await api.post(`/admin/bookings/${bookingId}/confirm`);
+
+            if (response.data.success) {
+                alert('Booking confirmed successfully');
+                fetchBookings();
+                setShowDetailsModal(false);
+            } else {
+                alert(response.data.message || 'Failed to confirm booking');
+            }
+        } catch (error: any) {
+            console.error('Error confirming booking:', error);
+            alert(error.response?.data?.message || 'Failed to confirm booking');
+        } finally {
+            setActionLoading(prev => ({ ...prev, confirm: false }));
+        }
+    };
+
+    const handleCancel = async (bookingId: string) => {
+        const reason = prompt('Please enter cancellation reason:');
+        if (!reason) return;
+
+        try {
+            setActionLoading(prev => ({ ...prev, cancel: true }));
+            const response = await api.post(`/admin/bookings/${bookingId}/cancel`, { 
+                cancellationReason: reason 
+            });
+
+            if (response.data.success) {
+                alert('Booking cancelled successfully');
+                fetchBookings();
+                setShowDetailsModal(false);
+            } else {
+                alert(response.data.message || 'Failed to cancel booking');
+            }
+        } catch (error: any) {
+            console.error('Error cancelling booking:', error);
+            alert(error.response?.data?.message || 'Failed to cancel booking');
+        } finally {
+            setActionLoading(prev => ({ ...prev, cancel: false }));
         }
     };
 
@@ -1128,6 +1183,48 @@ export default function BookingsPage() {
                                             Reject Booking
                                         </button>
                                     </>
+                                )}
+                                {selectedBooking.status === 'in_progress' && (
+                                    <>
+                                        <button
+                                            onClick={() => handleConfirm(selectedBooking.id)}
+                                            disabled={actionLoading.confirm}
+                                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {actionLoading.confirm ? (
+                                                <Loader className="w-4 h-4 mr-2 animate-spin" />
+                                            ) : (
+                                                <CheckCircle className="w-4 h-4 mr-2" />
+                                            )}
+                                            {actionLoading.confirm ? 'Confirming...' : 'Confirm Booking'}
+                                        </button>
+                                        <button
+                                            onClick={() => handleCancel(selectedBooking.id)}
+                                            disabled={actionLoading.cancel}
+                                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {actionLoading.cancel ? (
+                                                <Loader className="w-4 h-4 mr-2 animate-spin" />
+                                            ) : (
+                                                <XCircle className="w-4 h-4 mr-2" />
+                                            )}
+                                            {actionLoading.cancel ? 'Cancelling...' : 'Cancel Booking'}
+                                        </button>
+                                    </>
+                                )}
+                                {(selectedBooking.status === 'confirmed' || selectedBooking.status === 'completed') && (
+                                    <button
+                                        onClick={() => handleCancel(selectedBooking.id)}
+                                        disabled={actionLoading.cancel}
+                                        className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {actionLoading.cancel ? (
+                                            <Loader className="w-4 h-4 mr-2 animate-spin" />
+                                        ) : (
+                                            <XCircle className="w-4 h-4 mr-2" />
+                                        )}
+                                        {actionLoading.cancel ? 'Cancelling...' : 'Cancel Booking'}
+                                    </button>
                                 )}
                                 <button
                                     onClick={() => setShowDetailsModal(false)}

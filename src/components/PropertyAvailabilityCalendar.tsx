@@ -39,10 +39,10 @@ export default function PropertyAvailabilityCalendar({
     const fetchAvailability = async () => {
         try {
             setLoading(true);
-            const startDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-            const endDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+            const startDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+            const endDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 2, 0);
 
-            const response = await api.get(`/properties/${propertyId}/availability`, {
+            const response = await api.get(`/availability/unavailable/${propertyId}`, {
                 params: {
                     startDate: startDate.toISOString().split('T')[0],
                     endDate: endDate.toISOString().split('T')[0]
@@ -50,7 +50,13 @@ export default function PropertyAvailabilityCalendar({
             });
 
             if (response.data.success) {
-                setAvailability(response.data.data);
+                // Transform the data to match the expected interface
+                const transformedData = response.data.data.map((item: any) => ({
+                    ...item,
+                    id: item.bookingId || `${item.date}-${item.reason}`,
+                    isActive: true
+                }));
+                setAvailability(transformedData);
             }
         } catch (error) {
             console.error('Error fetching availability:', error);
