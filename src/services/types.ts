@@ -643,6 +643,7 @@ export interface AdminSubscriptionPlan {
   analyticsAccess: boolean;
   supportLevel?: string | null;
   trialPeriodDays: number;
+  isTrialEnabled: boolean;
   isRecommended: boolean;
   isActive: boolean;
   features?: string[] | null;
@@ -675,6 +676,7 @@ export interface AdminSubscriptionPlanPayload {
   analyticsAccess?: boolean;
   supportLevel?: string | null;
   trialPeriodDays?: number;
+  isTrialEnabled?: boolean;
   isRecommended?: boolean;
   isActive?: boolean;
   features?: string[] | string | null;

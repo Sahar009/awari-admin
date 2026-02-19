@@ -28,6 +28,7 @@ const defaultState: AdminSubscriptionPlanPayload & { featuresText: string } = {
   analyticsAccess: false,
   supportLevel: '',
   trialPeriodDays: 0,
+  isTrialEnabled: false,
   isRecommended: false,
   isActive: true,
   features: null,
@@ -79,6 +80,7 @@ const PlanDrawer = ({ isOpen, mode, plan, isSaving, onClose, onSubmit, feedback 
           analyticsAccess: plan.analyticsAccess,
           supportLevel: plan.supportLevel ?? '',
           trialPeriodDays: plan.trialPeriodDays ?? 0,
+          isTrialEnabled: plan.isTrialEnabled ?? false,
           isRecommended: plan.isRecommended,
           isActive: plan.isActive,
           features: plan.features ?? null,
@@ -110,7 +112,7 @@ const PlanDrawer = ({ isOpen, mode, plan, isSaving, onClose, onSubmit, feedback 
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const value = event.target.value;
 
-      if (field === 'prioritySupport' || field === 'analyticsAccess' || field === 'isRecommended' || field === 'isActive') {
+      if (field === 'prioritySupport' || field === 'analyticsAccess' || field === 'isTrialEnabled' || field === 'isRecommended' || field === 'isActive') {
         setFormState((prev) => ({
           ...prev,
           [field]: (event.target as HTMLInputElement).checked
@@ -171,10 +173,11 @@ const PlanDrawer = ({ isOpen, mode, plan, isSaving, onClose, onSubmit, feedback 
       analyticsAccess: Boolean(formState.analyticsAccess),
       supportLevel: formState.supportLevel || undefined,
       trialPeriodDays: formState.trialPeriodDays ?? 0,
+      isTrialEnabled: Boolean(formState.isTrialEnabled),
       isRecommended: Boolean(formState.isRecommended),
       isActive: Boolean(formState.isActive),
       features: preparedFeatures,
-      metadata: formState.metadata ?? null
+      metadata: formState.metadata ?? undefined
     };
 
     onSubmit(payload);
@@ -350,13 +353,25 @@ const PlanDrawer = ({ isOpen, mode, plan, isSaving, onClose, onSubmit, feedback 
                 />
               </div>
               <div>
+                <label className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400 mt-6">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(formState.isTrialEnabled)}
+                    onChange={handleInputChange('isTrialEnabled')}
+                    className="h-4 w-4 rounded border-slate-300 text-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800"
+                  />
+                  Trial Enabled
+                </label>
+              </div>
+              <div>
                 <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Trial period (days)</label>
                 <input
                   type="number"
                   min={0}
                   value={formState.trialPeriodDays ?? 0}
                   onChange={handleInputChange('trialPeriodDays')}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/40"
+                  disabled={!formState.isTrialEnabled}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>

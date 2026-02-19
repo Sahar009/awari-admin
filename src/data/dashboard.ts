@@ -1,3 +1,5 @@
+import { Layers } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import {
   BarChart3,
   Users,
@@ -20,8 +22,8 @@ export const navigation = [
   { name: 'Moderation', icon: Shield, path: '/moderation' },
   { name: 'Transactions', icon: Wallet, path: '/transactions' },
   { name: 'Withdrawals', icon: ArrowDownRight, path: '/withdrawals' },
-  // { name: 'Subscriptions', icon: FileText, path: '/subscriptions' },
-  // { name: 'Plans', icon: Layers, path: '/subscription-plans' },
+  { name: 'Subscriptions', icon: FileText, path: '/subscriptions' },
+  { name: 'Plans', icon: Layers, path: '/subscription-plans' },
   { name: 'Reports', icon: TrendingUp, path: '/reports' },
   { name: 'Booking Fees', icon: DollarSign, path: '/booking-fees' },
   { name: 'Booking Config', icon: SlidersHorizontal, path: '/booking-config' },
