@@ -12,6 +12,7 @@ import { ActionButton } from '../ui/ActionButton';
 import UserDetailsDrawer from './UserDetailsDrawer';
 import type { AdminUserProfileUpdatePayload } from '../../services/types';
 import CreateAdminModal from './CreateAdminModal';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 
 const badgeColor: Record<string, string> = {
   admin: 'bg-amber-500/15 text-amber-500 dark:bg-amber-500/20',
@@ -35,7 +36,8 @@ const roleOptions = [
   { value: 'landlord', label: 'Landlord' },
   { value: 'agent', label: 'Agent' },
   { value: 'hotel_provider', label: 'Hotel provider' },
-  { value: 'admin', label: 'Admin' }
+  { value: 'admin', label: 'Admin' },
+  { value: 'support_admin', label: 'Support admin' }
 ];
 
 const extractErrorMessage = (error: unknown) => {
@@ -58,6 +60,7 @@ const extractErrorMessage = (error: unknown) => {
 };
 
 const UsersSection: React.FC = () => {
+  const { user } = useAdminAuth();
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -150,7 +153,7 @@ const UsersSection: React.FC = () => {
     );
   };
 
-  const handleCreateAdminSubmit = (payload: { firstName: string; lastName: string; email: string; phone?: string }) => {
+  const handleCreateAdminSubmit = (payload: { firstName: string; lastName: string; email: string; phone?: string; role: 'admin' | 'support_admin' }) => {
     setSectionFeedback(null);
     createAdminMutation.mutate(payload, {
       onSuccess: (response) => {
@@ -158,9 +161,10 @@ const UsersSection: React.FC = () => {
         const emailStatus = emailSent
           ? 'Credentials were emailed successfully.'
           : 'Email delivery failed; share the temporary password manually.';
+        const roleText = payload.role === 'admin' ? 'admin' : 'support admin';
         setSectionFeedback({
           type: 'success',
-          message: `${user.firstName} ${user.lastName} now has admin access. ${emailStatus} Temporary password: ${temporaryPassword}`
+          message: `${user.firstName} ${user.lastName} now has ${roleText} access. ${emailStatus} Temporary password: ${temporaryPassword}`
         });
         setCreateModalOpen(false);
       }
@@ -200,14 +204,16 @@ const UsersSection: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ActionButton
-            variant="secondary"
-            label="Create admin"
-            onClick={() => {
-              setSectionFeedback(null);
-              setCreateModalOpen(true);
-            }}
-          />
+          {user?.role === 'admin' && (
+            <ActionButton
+              variant="secondary"
+              label="Create admin"
+              onClick={() => {
+                setSectionFeedback(null);
+                setCreateModalOpen(true);
+              }}
+            />
+          )}
         </div>
       </div>
 

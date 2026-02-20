@@ -40,7 +40,7 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setAuthToken(storedToken);
       const profile = await authService.fetchProfile();
-      if (profile.role !== 'admin') {
+      if (profile.role !== 'admin' && profile.role !== 'support_admin') {
         throw new Error('Unauthorized');
       }
       setToken(storedToken);
@@ -62,7 +62,7 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       const { token: authToken, user: profile } = await authService.login(email, password);
-      if (profile.role !== 'admin') {
+      if (profile.role !== 'admin' && profile.role !== 'support_admin') {
         throw new Error('You do not have administrator access.');
       }
       setAuthToken(authToken);

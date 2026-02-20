@@ -6,6 +6,7 @@ interface CreateAdminForm {
   lastName: string;
   email: string;
   phone?: string;
+  role: 'admin' | 'support_admin';
 }
 
 interface CreateAdminModalProps {
@@ -20,7 +21,8 @@ const initialForm: CreateAdminForm = {
   firstName: '',
   lastName: '',
   email: '',
-  phone: ''
+  phone: '',
+  role: 'admin'
 };
 
 const CreateAdminModal = ({ isOpen, isSubmitting, errorMessage, onClose, onSubmit }: CreateAdminModalProps) => {
@@ -57,7 +59,8 @@ const CreateAdminModal = ({ isOpen, isSubmitting, errorMessage, onClose, onSubmi
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       email: form.email.trim(),
-      phone: form.phone?.trim() || undefined
+      phone: form.phone?.trim() || undefined,
+      role: form.role
     });
   };
 
@@ -66,11 +69,14 @@ const CreateAdminModal = ({ isOpen, isSubmitting, errorMessage, onClose, onSubmi
       <div className="w-full max-w-lg rounded-2xl border border-slate-200/60 bg-white/95 p-6 shadow-2xl dark:border-slate-700/60 dark:bg-slate-900/90">
         <form className="space-y-6" onSubmit={handleSubmit}>
           <header className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-500">Create admin</p>
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Invite a new administrator</h2>
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-500">
+              {form.role === 'admin' ? 'Create admin' : 'Create support admin'}
+            </p>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              Invite a new {form.role === 'admin' ? 'administrator' : 'support administrator'}
+            </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              A temporary password will be generated automatically and emailed to the new admin along with their access
-              link.
+              A temporary password will be generated automatically and emailed to the new {form.role === 'admin' ? 'admin' : 'support admin'} along with their access link.
             </p>
           </header>
 
@@ -130,6 +136,24 @@ const CreateAdminModal = ({ isOpen, isSubmitting, errorMessage, onClose, onSubmi
                 placeholder="+234 800 000 0000"
               />
             </label>
+
+            <label className="block text-sm md:col-span-2">
+              <span className="text-slate-500 dark:text-slate-400">Admin Role</span>
+              <select
+                value={form.role}
+                onChange={(event) => updateField('role', event.target.value as 'admin' | 'support_admin')}
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
+              >
+                <option value="admin">Full Admin</option>
+                <option value="support_admin">Support Admin</option>
+              </select>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                {form.role === 'admin' 
+                  ? 'Full admin has access to all features including user management, subscriptions, and system configuration.'
+                  : 'Support admin can view data and perform basic moderation tasks but cannot manage users or subscriptions.'
+                }
+              </p>
+            </label>
           </div>
 
           {errorMessage ? (
@@ -147,7 +171,11 @@ const CreateAdminModal = ({ isOpen, isSubmitting, errorMessage, onClose, onSubmi
             >
               Cancel
             </button>
-            <ActionButton label="Create admin" type="submit" disabled={!isValid || isSubmitting} />
+            <ActionButton 
+              label={`Create ${form.role === 'admin' ? 'Full Admin' : 'Support Admin'}`} 
+              type="submit" 
+              disabled={!isValid || isSubmitting} 
+            />
           </div>
         </form>
       </div>

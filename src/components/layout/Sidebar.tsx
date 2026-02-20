@@ -1,5 +1,5 @@
 import { ChevronRight, LogOut } from 'lucide-react';
-import { navigation, systemHealth } from '../../data/dashboard';
+import { adminNavigation, supportAdminNavigation, systemHealth } from '../../data/dashboard';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import type { AdminUser } from '../../services/auth';
@@ -16,6 +16,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
     ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || 'AD'
     : 'AD';
 
+  // Choose navigation based on user role
+  const currentNavigation = user?.role === 'support_admin' ? supportAdminNavigation : adminNavigation;
+
   return (
     <>
       <aside
@@ -27,14 +30,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
           <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-200/70 dark:border-slate-800/80">
             <div className="h-10 w-10 rounded-xl bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg" />
             <div>
-              <h1 className="text-lg font-semibold tracking-tight">AWARI Admin</h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Platform Control Center</p>
+              <h1 className="text-lg font-semibold tracking-tight">
+                {user?.role === 'support_admin' ? 'AWARI Support Admin' : 'AWARI Admin'}
+              </h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {user?.role === 'support_admin' ? 'Support Control Center' : 'Platform Control Center'}
+              </p>
             </div>
           </div>
 
           <nav className="flex-1 overflow-y-auto px-4 py-6">
             <ul className="space-y-1">
-              {navigation.map((item) => {
+              {currentNavigation.map((item: { name: string; icon: any; path: string; badge?: string }) => {
                 const Icon = item.icon;
                 return (
                   <li key={item.name}>
@@ -62,8 +69,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                 );
               })}
             </ul>
-
-            <div className="mt-8 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-5 dark:border-slate-800/70 dark:bg-slate-800/40">
+{
+  user?.role === "admin" ? (
+    <div className="mt-8 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-5 dark:border-slate-800/70 dark:bg-slate-800/40">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">System Health</h3>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Real-time platform services status overview.
@@ -85,6 +93,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                 ))}
               </ul>
             </div>
+
+  ) : (
+    <>
+   
+    </>
+  )
+}
+            
           </nav>
 
           <div className="border-t border-slate-200/60 px-6 py-5 text-xs text-slate-500 dark:border-slate-800/70 dark:text-slate-400">

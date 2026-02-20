@@ -14,7 +14,8 @@ import {
   SlidersHorizontal
 } from 'lucide-react';
 
-export const navigation = [
+// Full admin navigation - access to all features
+export const adminNavigation = [
   { name: 'Overview', icon: BarChart3, path: '/', badge: 'Live' },
   { name: 'Users', icon: Users, path: '/users' },
   { name: 'Properties', icon: Building2, path: '/properties' },
@@ -29,6 +30,20 @@ export const navigation = [
   { name: 'Booking Config', icon: SlidersHorizontal, path: '/booking-config' },
   { name: 'Settings', icon: Settings, path: '/settings' }
 ];
+
+// Support admin navigation - limited access
+export const supportAdminNavigation = [
+  { name: 'Overview', icon: BarChart3, path: '/', badge: 'Live' },
+  { name: 'Users', icon: Users, path: '/users' },
+  { name: 'Properties', icon: Building2, path: '/properties' },
+  { name: 'Bookings', icon: Calendar, path: '/bookings' },
+  { name: 'Moderation', icon: Shield, path: '/moderation' },
+  { name: 'Transactions', icon: Wallet, path: '/transactions' },
+  { name: 'Settings', icon: Settings, path: '/settings' }
+];
+
+// Legacy navigation for backward compatibility
+export const navigation = adminNavigation;
 
 export const quickActions = [
   {
