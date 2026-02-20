@@ -187,6 +187,13 @@ export default function BookingsPage() {
         approve: false
     });
 
+    // State for cancellation modal
+    const [cancelModal, setCancelModal] = useState({
+        isOpen: false,
+        bookingId: '',
+        reason: ''
+    });
+
     const [filters, setFilters] = useState({
         status: '',
         paymentStatus: '',
@@ -305,18 +312,29 @@ export default function BookingsPage() {
         }
     };
 
-    const handleCancel = async (bookingId: string) => {
-        const reason = prompt('Please enter cancellation reason:');
-        if (!reason) return;
+    const handleCancel = (bookingId: string) => {
+        setCancelModal({
+            isOpen: true,
+            bookingId,
+            reason: ''
+        });
+    };
+
+    const handleConfirmCancel = async () => {
+        if (!cancelModal.reason.trim()) {
+            alert('Please enter a cancellation reason');
+            return;
+        }
 
         try {
             setActionLoading(prev => ({ ...prev, cancel: true }));
-            const response = await api.post(`/admin/bookings/${bookingId}/cancel`, { 
-                cancellationReason: reason 
+            const response = await api.post(`/admin/bookings/${cancelModal.bookingId}/cancel`, { 
+                cancellationReason: cancelModal.reason 
             });
 
             if (response.data.success) {
                 alert('Booking cancelled successfully');
+                setCancelModal({ isOpen: false, bookingId: '', reason: '' });
                 fetchBookings();
                 setShowDetailsModal(false);
             } else {
@@ -328,6 +346,10 @@ export default function BookingsPage() {
         } finally {
             setActionLoading(prev => ({ ...prev, cancel: false }));
         }
+    };
+
+    const handleCloseCancelModal = () => {
+        setCancelModal({ isOpen: false, bookingId: '', reason: '' });
     };
 
     const handleMarkAsPaid = async () => {
@@ -1303,6 +1325,69 @@ export default function BookingsPage() {
                     propertyTitle={selectedBooking.property.title}
                     onClose={() => setShowAvailabilityCalendar(false)}
                 />
+            )}
+
+            {/* Cancellation Modal */}
+            {cancelModal.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Transparent background overlay */}
+                    <div 
+                        className="absolute inset-0 bg-transparent backdrop-blur-sm"
+                        onClick={handleCloseCancelModal}
+                    />
+                    
+                    {/* Modal content */}
+                    <div className="relative bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl border border-gray-200">
+                        <div className="flex items-center mb-4">
+                            <XCircle className="w-6 h-6 text-red-500 mr-3" />
+                            <h3 className="text-lg font-semibold text-gray-900">Cancel Booking</h3>
+                        </div>
+                        
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to cancel this booking? Please provide a reason for the cancellation.
+                        </p>
+                        
+                        <div className="mb-4">
+                            <label htmlFor="cancelReason" className="block text-sm font-medium text-gray-700 mb-2">
+                                Cancellation Reason
+                            </label>
+                            <textarea
+                                id="cancelReason"
+                                value={cancelModal.reason}
+                                onChange={(e) => setCancelModal(prev => ({ ...prev, reason: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                rows={3}
+                                placeholder="Please enter the reason for cancellation..."
+                            />
+                        </div>
+                        
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={handleCloseCancelModal}
+                                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                            >
+                                Back
+                            </button>
+                            <button
+                                onClick={handleConfirmCancel}
+                                disabled={actionLoading.cancel || !cancelModal.reason.trim()}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                            >
+                                {actionLoading.cancel ? (
+                                    <>
+                                        <Loader className="w-4 h-4 animate-spin" />
+                                        Cancelling...
+                                    </>
+                                ) : (
+                                    <>
+                                        <XCircle className="w-4 h-4" />
+                                        Cancel Booking
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
