@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Loader, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { Loader, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import {
   useAdminUsers,
   useAdminUserStatusMutation,
@@ -59,16 +59,29 @@ const extractErrorMessage = (error: unknown) => {
   return 'Something went wrong. Please try again.';
 };
 
+// Debounce utility
+const useDebounce = (callback: (value: string) => void, delay: number) => {
+  const timeoutRef = React.useRef<number | null>(null);
+  
+  return useCallback((value: string) => {
+    if (timeoutRef.current !== null) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = window.setTimeout(() => callback(value), delay);
+  }, [callback, delay]);
+};
+
 const UsersSection: React.FC = () => {
   const { user } = useAdminAuth();
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
+  const [search, setSearch] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerFeedback, setDrawerFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [sectionFeedback, setSectionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  const { data, isLoading, isFetching } = useAdminUsers({ page, limit });
+  const { data, isLoading, isFetching } = useAdminUsers({ page, limit, search: search.trim() || undefined });
   const statusMutation = useAdminUserStatusMutation();
   const roleMutation = useAdminUserRoleMutation();
   const profileMutation = useAdminUserProfileMutation();
@@ -77,6 +90,15 @@ const UsersSection: React.FC = () => {
 
   const handleStatusChange = (userId: string, action: 'activate' | 'suspend' | 'ban' | 'reinstate') => {
     statusMutation.mutate({ userId, action });
+  };
+
+  const debouncedSearch = useDebounce((value: string) => {
+    setSearch(value);
+    setPage(1); // Reset to first page when searching
+  }, 300);
+
+  const handleSearchChange = (value: string) => {
+    debouncedSearch(value);
   };
 
   const handleRoleChange = (userId: string, role: string) => {
@@ -213,6 +235,28 @@ const UsersSection: React.FC = () => {
                 setCreateModalOpen(true);
               }}
             />
+          )}
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mt-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            placeholder="Search users by name, email, or role..."
+            className="w-full rounded-lg border border-slate-200 bg-white pl-10 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100 dark:placeholder:text-slate-400"
+          />
+          {search && (
+            <button
+              onClick={() => handleSearchChange('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+            >
+              ×
+            </button>
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ShieldCheck, Bell, MonitorCog, Save } from 'lucide-react';
+import { ShieldCheck, Bell, MonitorCog, Save, Globe, MessageSquare, Shield } from 'lucide-react';
 import { ActionButton } from '../components/ui/ActionButton';
+import { useNavigate } from 'react-router-dom';
 
 interface ToggleButtonProps {
   label: string;
@@ -34,6 +35,7 @@ const ToggleButton = ({ label, description, value, onChange }: ToggleButtonProps
 };
 
 const SettingsPage = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({
     firstName: 'Admin',
     lastName: 'User',
@@ -333,42 +335,56 @@ const SettingsPage = () => {
               </label>
             </div>
           </div>
+          
+            
+          </section>
 
-          {/* <div className="mt-6 space-y-4 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 dark:border-slate-800/70 dark:bg-slate-900/60">
+          <section className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Integration credentials</h3>
-              <ActionButton
-                variant="secondary"
-                label="Rotate keys"
-                startIcon={<RefreshCcw className="h-4 w-4" />}
-                onClick={(event) => {
-                  event.preventDefault();
-                }}
-              />
+              <div>
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white">Site Configuration</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Manage website settings, contact information, and global configurations.</p>
+              </div>
+              <MonitorCog className="h-5 w-5 text-indigo-500" />
             </div>
-            <div className="space-y-3">
-              {apiKeys.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/60 bg-white/80 px-4 py-3 text-sm dark:border-slate-800/60 dark:bg-slate-900/50"
-                >
-                  <div>
-                    <p className="font-semibold text-slate-900 dark:text-slate-100">{entry.label}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Last rotated {entry.lastRotated}</p>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-300">
-                    <Key className="h-4 w-4 text-indigo-500" />
-                    <span>{entry.value}</span>
-                  </div>
+
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200/60 bg-slate-50/60 dark:border-slate-800/60 dark:bg-slate-900/60">
+                <div>
+                  <h3 className="text-sm font-medium text-slate-900 dark:text-white">Website Settings</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage site name, contact details, and global configurations</p>
                 </div>
-              ))}
+                <ActionButton
+                  variant="secondary"
+                  label="Manage Site Config"
+                  onClick={() => navigate('/site-config')}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 rounded-xl border border-slate-200/60 bg-slate-50/60 dark:border-slate-800/60 dark:bg-slate-900/60">
+                  <Globe className="h-8 w-8 text-indigo-500 mx-auto mb-2" />
+                  <h4 className="text-sm font-medium text-slate-900 dark:text-white">Contact Info</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Phone, email, address</p>
+                </div>
+                <div className="text-center p-4 rounded-xl border border-slate-200/60 bg-slate-50/60 dark:border-slate-800/60 dark:bg-slate-900/60">
+                  <MessageSquare className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                  <h4 className="text-sm font-medium text-slate-900 dark:text-white">Social Media</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Facebook, Twitter, Instagram</p>
+                </div>
+                <div className="text-center p-4 rounded-xl border border-slate-200/60 bg-slate-50/60 dark:border-slate-800/60 dark:bg-slate-900/60">
+                  <Shield className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+                  <h4 className="text-sm font-medium text-slate-900 dark:text-white">System Settings</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Maintenance mode, analytics</p>
+                </div>
+              </div>
             </div>
-          </div> */}
-        </section>
+          </section>
 
         <div className="flex justify-end">
           <ActionButton label="Save changes" type="submit" startIcon={<Save className="h-4 w-4" />} className="px-6" />
         </div>
+
       </form>
     </div>
   );

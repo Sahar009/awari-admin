@@ -11,7 +11,8 @@ import {
   ArrowDownRight,
   DollarSign,
   Calendar,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Globe
 } from 'lucide-react';
 
 // Full admin navigation - access to all features
@@ -28,6 +29,7 @@ export const adminNavigation = [
   { name: 'Reports', icon: TrendingUp, path: '/reports' },
   { name: 'Booking Fees', icon: DollarSign, path: '/booking-fees' },
   { name: 'Booking Config', icon: SlidersHorizontal, path: '/booking-config' },
+  { name: 'Site Config', icon: Globe, path: '/site-config' },
   { name: 'Settings', icon: Settings, path: '/settings' }
 ];
 
@@ -39,6 +41,7 @@ export const supportAdminNavigation = [
   { name: 'Bookings', icon: Calendar, path: '/bookings' },
   { name: 'Moderation', icon: Shield, path: '/moderation' },
   { name: 'Transactions', icon: Wallet, path: '/transactions' },
+  // { name: 'Site Config', icon: Globe, path: '/site-config' },
   { name: 'Settings', icon: Settings, path: '/settings' }
 ];
 

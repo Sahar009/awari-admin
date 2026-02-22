@@ -18,6 +18,7 @@ import SettingsPage from './pages/Settings';
 import BookingFeesSettings from './pages/BookingFeesSettings';
 import BookingsPage from './pages/Bookings';
 import BookingConfigPage from './pages/BookingConfig';
+import SiteConfigPage from './pages/SiteConfig';
 import { useAdminAuth } from './context/AdminAuthContext';
 import LoginForm from './components/auth/LoginForm';
 
@@ -100,6 +101,7 @@ function App() {
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/booking-fees" element={<BookingFeesSettings />} />
                 <Route path="/booking-config" element={<BookingConfigPage />} />
+                <Route path="/site-config" element={<SiteConfigPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
