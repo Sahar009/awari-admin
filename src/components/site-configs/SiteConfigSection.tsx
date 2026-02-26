@@ -80,7 +80,7 @@ const SiteConfigSection: React.FC = () => {
     sortOrder: 0
   });
 
-  const { data, isLoading, isFetching } = useSiteConfigs({ page, limit, search: search.trim() || undefined, category, isPublic });
+  const { data, isLoading, isFetching } = useSiteConfigs({ page, limit, search: search.trim() || undefined, category });
   const upsertMutation = useUpsertSiteConfig();
   const updateMutation = useUpdateSiteConfig();
   const deleteMutation = useDeleteSiteConfig();

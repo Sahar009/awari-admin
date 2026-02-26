@@ -1,4 +1,4 @@
-import { Menu, Moon, Sun, Bell, Search } from 'lucide-react';
+import { Menu, Moon, Sun, Bell } from 'lucide-react';
 import React from 'react';
 import type { AdminUser } from '../../services/auth';
 
@@ -25,14 +25,14 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onToggleTheme, 
         >
           <Menu className="h-5 w-5" />
         </button>
-        <div className="hidden rounded-2xl border border-slate-200/70 bg-white px-4 py-2 text-sm text-slate-500 shadow-sm transition focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:focus-within:border-indigo-500 lg:flex lg:w-80">
+        {/* <div className="hidden rounded-2xl border border-slate-200/70 bg-white px-4 py-2 text-sm text-slate-500 shadow-sm transition focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:focus-within:border-indigo-500 lg:flex lg:w-80">
           <Search className="mr-2 h-4 w-4" />
           <input
             type="search"
             placeholder="Search users, listings, transactions..."
             className="flex-1 bg-transparent outline-none dark:placeholder:text-slate-500"
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="flex items-center gap-3">
