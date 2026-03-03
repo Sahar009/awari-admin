@@ -120,18 +120,6 @@ export interface AdminProperty {
   city: string;
   state: string;
   country?: string;
-  featured: boolean;
-  featuredUntil?: string | null;
-  viewCount?: number;
-  favoriteCount?: number;
-  contactCount?: number;
-  approvedBy?: string | null;
-  approvedAt?: string | null;
-  rejectionReason?: string | null;
-  moderationNotes?: string | null;
-  instantBooking?: boolean;
-  negotiable?: boolean;
-  furnished?: boolean;
   petFriendly?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -141,8 +129,53 @@ export interface AdminProperty {
   neighborhood?: string | null;
   description?: string | null;
   shortDescription?: string | null;
-  amenities?: unknown;
+  amenities?: {
+    livingRoom: {
+      smartTv: boolean;
+      ac: boolean;
+      sofa: boolean;
+      netflix: boolean;
+      dstv: boolean;
+    };
+    kitchen: {
+      microwave: boolean;
+      fridge: boolean;
+      cooker: boolean;
+      utensils: boolean;
+      washingMachine: boolean;
+    };
+    bedroom: {
+      wardrobe: boolean;
+      bed: boolean;
+      ac: boolean;
+      mirror: boolean;
+    };
+    bathroom: {
+      waterHeater: boolean;
+      shower: boolean;
+      bathtub: boolean;
+      towels: boolean;
+    };
+    technology: {
+      wifi: boolean;
+      smartLock: boolean;
+      cctv: boolean;
+    };
+    outdoor: {
+      pool: boolean;
+      gym: boolean;
+      balcony: boolean;
+      parking: boolean;
+      security: boolean;
+    };
+  };
   features?: unknown;
+  featured?: boolean;
+  featuredUntil?: string | null;
+  viewCount?: number;
+  contactCount?: number;
+  rejectionReason?: string | null;
+  moderationNotes?: string | null;
   media?: AdminPropertyMedia[];
   bookings?: AdminPropertyBooking[];
   reviews?: AdminPropertyReview[];
