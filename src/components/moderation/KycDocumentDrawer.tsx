@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Download, Eye, Mail, Shield, User2, X } from 'lucide-react';
+import { Download, Eye, Mail, Shield, User2, X, FileText, Image as ImageIcon } from 'lucide-react';
 import type { ModerationKycItem, ModerationKycUpdatePayload } from '../../services/types';
 import { ActionButton } from '../ui/ActionButton';
 
@@ -46,7 +46,25 @@ const formatDate = (value?: string | null) => {
   }
 };
 
-const KycDocumentDrawer = ({ isOpen, document, isSaving, onClose, onSave, feedback }: KycDocumentDrawerProps) => {
+const KycDocumentDrawer: React.FC<KycDocumentDrawerProps> = ({
+  isOpen,
+  document,
+  isSaving = false,
+  onClose,
+  onSave,
+  feedback
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [previewError, setPreviewError] = useState(false);
+
+  // Reset loading and error states when document changes
+  useEffect(() => {
+    setIsLoading(true);
+    setPreviewError(false);
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, [document?.documentUrl]);
+
   const [formState, setFormState] = useState<ModerationKycUpdatePayload>({
     status: normalizeStatus(document?.status),
     verificationNotes: document?.verificationNotes ?? undefined,
@@ -143,7 +161,16 @@ const KycDocumentDrawer = ({ isOpen, document, isSaving, onClose, onSave, feedba
           <section className="grid gap-4 rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70 md:grid-cols-[1.5fr,1fr]">
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between text-sm font-medium text-slate-900 dark:text-white">
-                <span>Document preview</span>
+                <span className="flex items-center gap-2">
+                  Document preview
+                  {document?.documentUrl && (
+                    document.documentUrl.includes('/raw/upload/') || document.documentUrl.toLowerCase().includes('.pdf') ? (
+                      <FileText className="h-4 w-4 text-red-500" />
+                    ) : (
+                      <ImageIcon className="h-4 w-4 text-green-500" />
+                    )
+                  )}
+                </span>
                 <div className="flex items-center gap-2 text-xs">
                   <ActionButton
                     variant="outline"
@@ -160,12 +187,58 @@ const KycDocumentDrawer = ({ isOpen, document, isSaving, onClose, onSave, feedba
                 </div>
               </div>
               <div className="relative aspect-[3/2] overflow-hidden rounded-2xl border border-slate-200/70 bg-slate-100 dark:border-slate-800/70 dark:bg-slate-900/70">
-                {document?.documentUrl ? (
-                  <img
-                    src={document.documentUrl}
-                    alt={`${document?.documentType} document`}
-                    className="h-full w-full object-contain"
-                  />
+                {isLoading ? (
+                  <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : previewError ? (
+                  <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+                    <div className="text-center">
+                      <div className="mb-2">⚠️ Preview unavailable</div>
+                      <div className="text-xs">Use "Open original" to view</div>
+                    </div>
+                  </div>
+                ) : document?.documentUrl ? (
+                  document.documentUrl.includes('/raw/upload/') || document.documentUrl.toLowerCase().includes('.pdf') ? (
+                    // PDF or raw document - use iframe for preview
+                    <iframe
+                      src={`https://docs.google.com/viewer?url=${encodeURIComponent(document.documentUrl)}&embedded=true`}
+                      className="h-full w-full border-0"
+                      title={`${document?.documentType} document preview`}
+                      onLoad={() => setIsLoading(false)}
+                      onError={() => {
+                        setPreviewError(true);
+                        setIsLoading(false);
+                      }}
+                    />
+                  ) : (
+                    // Image document - use img tag
+                    <img
+                      src={document.documentUrl}
+                      alt={`${document?.documentType} document`}
+                      className="h-full w-full object-contain"
+                      onLoad={() => setIsLoading(false)}
+                      onError={(e) => {
+                        setPreviewError(true);
+                        setIsLoading(false);
+                        // Fallback if image fails to load
+                        console.warn('Failed to load image');
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.innerHTML = `
+                            <div class="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+                              <div class="text-center">
+                                <div class="mb-2">⚠️ Preview unavailable</div>
+                                <div class="text-xs">Use "Open original" to view</div>
+                              </div>
+                            </div>
+                          `;
+                        }
+                      }}
+                    />
+                  )
                 ) : (
                   <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">
                     Document preview unavailable

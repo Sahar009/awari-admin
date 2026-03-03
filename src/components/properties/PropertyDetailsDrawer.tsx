@@ -104,7 +104,7 @@ export const PropertyDetailsDrawer = ({ isOpen, property, isLoading, onClose }: 
 
   const primaryImage = property?.media?.[0]?.secureUrl || property?.media?.[0]?.url;
   const galleryImages = property?.media?.slice(1) ?? [];
-  const amenities = stringifyArray(property?.amenities);
+  const amenities = property?.amenities && typeof property.amenities === 'object' ? property.amenities : null;
   const features = stringifyArray(property?.features);
   const bookings = property?.bookings ?? [];
   const shortletBookings = bookings.filter((booking) => booking.bookingType === 'shortlet');
@@ -230,16 +230,139 @@ export const PropertyDetailsDrawer = ({ isOpen, property, isLoading, onClose }: 
 
               <div className="grid gap-4 md:grid-cols-2">
                 <Section title="Amenities">
-                  {amenities.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {amenities.map((amenity) => (
-                        <span
-                          key={amenity}
-                          className="rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-200"
-                        >
-                          {amenity}
-                        </span>
-                      ))}
+                  {amenities && typeof amenities === 'object' && Object.keys(amenities).length > 0 ? (
+                    <div className="space-y-4">
+                      {/* Living Room */}
+                      {amenities.livingRoom && Object.values(amenities.livingRoom).some((v: any) => v === true) && (
+                        <div>
+                          <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            Living Room
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {Object.entries(amenities.livingRoom).map(([key, value]: [string, any]) => (
+                              value && (
+                                <span
+                                  key={key}
+                                  className="rounded-full bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-600 dark:bg-blue-500/20 dark:text-blue-200"
+                                >
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                                </span>
+                              )
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Kitchen */}
+                      {amenities.kitchen && Object.values(amenities.kitchen).some((v: any) => v === true) && (
+                        <div>
+                          <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                            Kitchen
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {Object.entries(amenities.kitchen).map(([key, value]: [string, any]) => (
+                              value && (
+                                <span
+                                  key={key}
+                                  className="rounded-full bg-orange-500/10 px-2 py-1 text-xs font-medium text-orange-600 dark:bg-orange-500/20 dark:text-orange-200"
+                                >
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                                </span>
+                              )
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bedroom */}
+                      {amenities.bedroom && Object.values(amenities.bedroom).some((v: any) => v === true) && (
+                        <div>
+                          <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                            Bedroom
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {Object.entries(amenities.bedroom).map(([key, value]: [string, any]) => (
+                              value && (
+                                <span
+                                  key={key}
+                                  className="rounded-full bg-purple-500/10 px-2 py-1 text-xs font-medium text-purple-600 dark:bg-purple-500/20 dark:text-purple-200"
+                                >
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                                </span>
+                              )
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bathroom */}
+                      {amenities.bathroom && Object.values(amenities.bathroom).some((v: any) => v === true) && (
+                        <div>
+                          <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+                            Bathroom
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {Object.entries(amenities.bathroom).map(([key, value]: [string, any]) => (
+                              value && (
+                                <span
+                                  key={key}
+                                  className="rounded-full bg-cyan-500/10 px-2 py-1 text-xs font-medium text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-200"
+                                >
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                                </span>
+                              )
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Technology */}
+                      {amenities.technology && Object.values(amenities.technology).some((v: any) => v === true) && (
+                        <div>
+                          <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                            Technology
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {Object.entries(amenities.technology).map(([key, value]: [string, any]) => (
+                              value && (
+                                <span
+                                  key={key}
+                                  className="rounded-full bg-green-500/10 px-2 py-1 text-xs font-medium text-green-600 dark:bg-green-500/20 dark:text-green-200"
+                                >
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                                </span>
+                              )
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Outdoor */}
+                      {amenities.outdoor && Object.values(amenities.outdoor).some((v: any) => v === true) && (
+                        <div>
+                          <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                            Outdoor
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {Object.entries(amenities.outdoor).map(([key, value]: [string, any]) => (
+                              value && (
+                                <span
+                                  key={key}
+                                  className="rounded-full bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-200"
+                                >
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                                </span>
+                              )
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <p className="text-sm text-slate-500 dark:text-slate-400">No amenities listed.</p>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Calendar, CheckCircle2, IdCard, Loader, MapPin, ShieldCheck, TriangleAlert, X, User, Eye, Download, Image as ImageIcon } from 'lucide-react';
+import { Calendar, CheckCircle2, IdCard, Loader, MapPin, ShieldCheck, TriangleAlert, X, User, Eye, Download, Image as ImageIcon, FileText } from 'lucide-react';
 import type {
   AdminUserDetailResponse,
   AdminUserProfileUpdatePayload,
@@ -1020,7 +1020,14 @@ export const UserDetailsDrawer = ({
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{viewingDocument.title}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{viewingDocument.title}</h3>
+                  {viewingDocument.url.includes('/raw/upload/') || viewingDocument.url.toLowerCase().includes('.pdf') ? (
+                    <FileText className="h-4 w-4 text-red-500" />
+                  ) : (
+                    <ImageIcon className="h-4 w-4 text-green-500" />
+                  )}
+                </div>
                 <p className="text-xs text-slate-500">{viewingDocument.type}</p>
               </div>
               <div className="flex items-center gap-2">
@@ -1043,7 +1050,8 @@ export const UserDetailsDrawer = ({
             {/* Modal Content */}
             <div className="flex-1 overflow-auto bg-slate-100/50 p-6 dark:bg-slate-950/20">
               <div className="mx-auto flex h-full w-full items-center justify-center">
-                {viewingDocument.url.match(/\.(jpg|jpeg|png|gif|webp)$|^data:image/i) ? (
+                {viewingDocument.url.match(/\.(jpg|jpeg|png|gif|webp)$|^data:image/i) || 
+                 (!viewingDocument.url.includes('/raw/upload/') && !viewingDocument.url.toLowerCase().includes('.pdf')) ? (
                   <img
                     src={viewingDocument.url === '#' ? 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=800&q=80' : viewingDocument.url}
                     alt={viewingDocument.title}
@@ -1051,7 +1059,7 @@ export const UserDetailsDrawer = ({
                   />
                 ) : (
                   <iframe
-                    src={viewingDocument.url}
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewingDocument.url)}&embedded=true`}
                     className="h-full w-full rounded-lg border-0 bg-white"
                     title="Document Viewer"
                   />
