@@ -19,6 +19,9 @@ import BookingFeesSettings from './pages/BookingFeesSettings';
 import BookingsPage from './pages/Bookings';
 import BookingConfigPage from './pages/BookingConfig';
 import SiteConfigPage from './pages/SiteConfig';
+import AmadeusHotelsPage from './pages/AmadeusHotels';
+import AmadeusHotelEditPage from './pages/AmadeusHotelEdit';
+import ExchangeRatesPage from './pages/ExchangeRates';
 import { useAdminAuth } from './context/AdminAuthContext';
 import LoginForm from './components/auth/LoginForm';
 
@@ -102,6 +105,9 @@ function App() {
                 <Route path="/booking-fees" element={<BookingFeesSettings />} />
                 <Route path="/booking-config" element={<BookingConfigPage />} />
                 <Route path="/site-config" element={<SiteConfigPage />} />
+                <Route path="/amadeus-hotels" element={<AmadeusHotelsPage />} />
+                <Route path="/amadeus-hotels/:id/edit" element={<AmadeusHotelEditPage />} />
+                <Route path="/exchange-rates" element={<ExchangeRatesPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

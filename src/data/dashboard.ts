@@ -12,7 +12,9 @@ import {
   DollarSign,
   Calendar,
   SlidersHorizontal,
-  Globe
+  Globe,
+  Hotel,
+  Currency
 } from 'lucide-react';
 
 // Full admin navigation - access to all features
@@ -20,6 +22,8 @@ export const adminNavigation = [
   { name: 'Overview', icon: BarChart3, path: '/', badge: 'Live' },
   { name: 'Users', icon: Users, path: '/users' },
   { name: 'Properties', icon: Building2, path: '/properties' },
+  { name: 'Amadeus Hotels', icon: Hotel, path: '/amadeus-hotels' },
+  { name: 'Exchange Rates', icon: Currency, path: '/exchange-rates' },
   { name: 'Bookings', icon: Calendar, path: '/bookings' },
   { name: 'Moderation', icon: Shield, path: '/moderation' },
   { name: 'Transactions', icon: Wallet, path: '/transactions' },
