@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Hotel,
   Search,
-  RefreshCw,
+
   Edit3,
 
   MapPin,
@@ -310,14 +310,14 @@ const AmadeusHotelsPage = () => {
                           >
                             <DollarSign size={18} className={updatingPriceId === hotel.id ? 'animate-spin' : ''} />
                           </button>
-                          <button
+                          {/* <button
                             onClick={() => handleRefreshImages(hotel.id)}
                             disabled={refreshingId === hotel.id}
                             className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
                             title="Refresh images from Google Places"
                           >
                             <RefreshCw size={18} className={refreshingId === hotel.id ? 'animate-spin' : ''} />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>
