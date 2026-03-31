@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import {
   getAmadeusHotels,
-  refreshAmadeusHotelImages,
+  // refreshAmadeusHotelImages,
   updateAmadeusHotelPrice,
   type AmadeusHotel
 } from '../services/amadeusAdmin';
@@ -49,7 +49,7 @@ const AmadeusHotelsPage = () => {
     hasPrevPage: false
   });
   const [loading, setLoading] = useState(true);
-  const [refreshingId, setRefreshingId] = useState<string | null>(null);
+  // const [refreshingId, setRefreshingId] = useState<string | null>(null);
   const [updatingPriceId, setUpdatingPriceId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -101,25 +101,25 @@ const AmadeusHotelsPage = () => {
     setPage(1);
   };
 
-  const handleRefreshImages = async (hotelId: string) => {
-    try {
-      setRefreshingId(hotelId);
-      const result = await refreshAmadeusHotelImages(hotelId);
-      if (result.success) {
-        setFeedback({
-          type: 'success',
-          message: `Refreshed ${result.data.addedCount} images from Google Places`
-        });
-        fetchHotels();
-      } else {
-        setFeedback({ type: 'error', message: result.message || 'Failed to refresh images' });
-      }
-    } catch (error) {
-      setFeedback({ type: 'error', message: 'Failed to refresh images' });
-    } finally {
-      setRefreshingId(null);
-    }
-  };
+  // const handleRefreshImages = async (hotelId: string) => {
+  //   try {
+  //     setRefreshingId(hotelId);
+  //     const result = await refreshAmadeusHotelImages(hotelId);
+  //     if (result.success) {
+  //       setFeedback({
+  //         type: 'success',
+  //         message: `Refreshed ${result.data.addedCount} images from Google Places`
+  //       });
+  //       fetchHotels();
+  //     } else {
+  //       setFeedback({ type: 'error', message: result.message || 'Failed to refresh images' });
+  //     }
+  //   } catch (error) {
+  //     setFeedback({ type: 'error', message: 'Failed to refresh images' });
+  //   } finally {
+  //     setRefreshingId(null);
+  //   }
+  // };
 
   const handleRefreshPrice = async (hotelId: string) => {
     try {
