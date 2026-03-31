@@ -5,7 +5,7 @@ import {
   Search,
   RefreshCw,
   Edit3,
-  Eye,
+
   MapPin,
   Image as ImageIcon,
   ChevronLeft,
@@ -301,13 +301,7 @@ const AmadeusHotelsPage = () => {
                           >
                             <Edit3 size={18} />
                           </button>
-                          <button
-                            onClick={() => window.open(`/property-details?id=${hotel.id}`, '_blank')}
-                            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                            title="View"
-                          >
-                            <Eye size={18} />
-                          </button>
+                         
                           <button
                             onClick={() => handleRefreshPrice(hotel.id)}
                             disabled={updatingPriceId === hotel.id}
