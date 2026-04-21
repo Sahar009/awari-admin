@@ -174,11 +174,53 @@ export interface AdminProperty {
   featuredUntil?: string | null;
   viewCount?: number;
   contactCount?: number;
+  favoriteCount?: number;
   rejectionReason?: string | null;
   moderationNotes?: string | null;
   media?: AdminPropertyMedia[];
   bookings?: AdminPropertyBooking[];
   reviews?: AdminPropertyReview[];
+  // Pricing fields
+  negotiable?: boolean;
+  cautionFee?: number | null;
+  agencyFee?: number | null;
+  legalFee?: number | null;
+  serviceCharge?: number | null;
+  otherFees?: number | null;
+  // Property details
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  toilets?: number | null;
+  parkingSpaces?: number | null;
+  floorArea?: number | null;
+  landArea?: number | null;
+  floorNumber?: number | null;
+  totalFloors?: number | null;
+  yearBuilt?: number | null;
+  conditionStatus?: string | null;
+  // Features & policies
+  smokingAllowed?: boolean;
+  furnished?: boolean;
+  instantBooking?: boolean;
+  cancellationPolicy?: string | null;
+  // Availability
+  availableFrom?: string | null;
+  availableUntil?: string | null;
+  minLeasePeriod?: number | null;
+  maxLeasePeriod?: number | null;
+  minStayNights?: number | null;
+  maxStayNights?: number | null;
+  // Extended location
+  postalCode?: string | null;
+  landmark?: string | null;
+  // SEO & marketing
+  tags?: string | string[] | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  seoKeywords?: string | string[] | null;
+  // Approval
+  approvedBy?: string | null;
+  approvedAt?: string | null;
 }
 
 export interface AdminPropertySummary {

@@ -92,3 +92,52 @@ export const useCreateAdminUserMutation = () => {
     }
   });
 };
+
+export const useCreateUserMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    {
+      success: boolean;
+      message: string;
+      data: {
+        user: AdminUser;
+        password: string;
+        emailSent: boolean;
+      };
+    },
+    unknown,
+    {
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone?: string;
+      password: string;
+      role: 'admin' | 'support_admin' | 'landlord' | 'renter' | 'hotel';
+      userType?: string;
+    }
+  >({
+    mutationFn: (payload) => adminUsersService.createUser(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [USERS_KEY] });
+    }
+  });
+};
+
+export const useCreatePropertyForUserMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    {
+      success: boolean;
+      message: string;
+      data: any;
+    },
+    unknown,
+    { userId: string; propertyData: any; images?: File[] }
+  >({
+    mutationFn: ({ userId, propertyData, images }) => adminUsersService.createPropertyForUser(userId, propertyData, images),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [USERS_KEY] });
+      queryClient.invalidateQueries({ queryKey: ['admin-properties'] });
+    }
+  });
+};

@@ -6,12 +6,15 @@ import {
   useAdminUserRoleMutation,
   useAdminUserDetail,
   useAdminUserProfileMutation,
-  useCreateAdminUserMutation
+  useCreateAdminUserMutation,
+  useCreateUserMutation
 } from '../../hooks/useAdminUsers';
 import { ActionButton } from '../ui/ActionButton';
 import UserDetailsDrawer from './UserDetailsDrawer';
 import type { AdminUserProfileUpdatePayload } from '../../services/types';
 import CreateAdminModal from './CreateAdminModal';
+import CreateUserModal from './CreateUserModal';
+import CreatePropertyModal from './CreatePropertyModal';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 
 const badgeColor: Record<string, string> = {
@@ -80,12 +83,16 @@ const UsersSection: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerFeedback, setDrawerFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
+  const [isCreateUserModalOpen, setCreateUserModalOpen] = useState(false);
+  const [isPropertyModalOpen, setIsPropertyModalOpen] = useState(false);
+  const [selectedUserForProperty, setSelectedUserForProperty] = useState<{ id: string; name: string } | null>(null);
   const [sectionFeedback, setSectionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const { data, isLoading, isFetching } = useAdminUsers({ page, limit, search: search.trim() || undefined });
   const statusMutation = useAdminUserStatusMutation();
   const roleMutation = useAdminUserRoleMutation();
   const profileMutation = useAdminUserProfileMutation();
   const createAdminMutation = useCreateAdminUserMutation();
+  const createUserMutation = useCreateUserMutation();
   const { data: detailData, isLoading: isDetailLoading } = useAdminUserDetail(selectedUserId ?? undefined, drawerOpen);
 
   const handleStatusChange = (userId: string, action: 'activate' | 'suspend' | 'ban' | 'reinstate') => {
@@ -193,7 +200,38 @@ const UsersSection: React.FC = () => {
     });
   };
 
+  const handleCreateUserSubmit = (payload: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    password: string;
+    role: 'admin' | 'support_admin' | 'landlord' | 'renter' | 'hotel';
+    userType?: string;
+  }) => {
+    setSectionFeedback(null);
+    createUserMutation.mutate(payload, {
+      onSuccess: (response) => {
+        const { user, password, emailSent } = response.data;
+        const emailStatus = emailSent
+          ? 'Credentials were emailed successfully.'
+          : 'Email delivery failed; share the password manually.';
+        setSectionFeedback({
+          type: 'success',
+          message: `${user.firstName} ${user.lastName} account created. ${emailStatus} Password: ${password}`
+        });
+        setCreateUserModalOpen(false);
+      }
+    });
+  };
+
+  const handleAddProperty = (userId: string, userName: string) => {
+    setSelectedUserForProperty({ id: userId, name: userName });
+    setIsPropertyModalOpen(true);
+  };
+
   const createAdminError = createAdminMutation.isError ? extractErrorMessage(createAdminMutation.error) : null;
+  const createUserError = createUserMutation.isError ? extractErrorMessage(createUserMutation.error) : null;
 
   const pagination = data?.pagination;
   const currentPage = pagination?.currentPage ?? page;
@@ -227,14 +265,24 @@ const UsersSection: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           {user?.role === 'admin' && (
-            <ActionButton
-              variant="secondary"
-              label="Create admin"
-              onClick={() => {
-                setSectionFeedback(null);
-                setCreateModalOpen(true);
-              }}
-            />
+            <>
+              <ActionButton
+                variant="secondary"
+                label="Create admin"
+                onClick={() => {
+                  setSectionFeedback(null);
+                  setCreateModalOpen(true);
+                }}
+              />
+              <ActionButton
+                variant="primary"
+                label="Create user"
+                onClick={() => {
+                  setSectionFeedback(null);
+                  setCreateUserModalOpen(true);
+                }}
+              />
+            </>
           )}
         </div>
       </div>
@@ -371,6 +419,11 @@ const UsersSection: React.FC = () => {
                           label="View"
                           onClick={() => handleViewUser(user.id)}
                         />
+                        <ActionButton
+                          variant="primary"
+                          label="Add property"
+                          onClick={() => handleAddProperty(user.id, `${user.firstName} ${user.lastName}`)}
+                        />
                         {user.status !== 'active' ? (
                           <ActionButton
                             variant="secondary"
@@ -446,6 +499,23 @@ const UsersSection: React.FC = () => {
           setCreateModalOpen(false);
         }}
         onSubmit={handleCreateAdminSubmit}
+      />
+      <CreateUserModal
+        isOpen={isCreateUserModalOpen}
+        onClose={() => {
+          if (createUserMutation.isPending) return;
+          createUserMutation.reset();
+          setCreateUserModalOpen(false);
+        }}
+        onSubmit={handleCreateUserSubmit}
+        isLoading={createUserMutation.isPending}
+        error={createUserError}
+      />
+      <CreatePropertyModal
+        isOpen={isPropertyModalOpen}
+        onClose={() => setIsPropertyModalOpen(false)}
+        userId={selectedUserForProperty?.id || ''}
+        userName={selectedUserForProperty?.name || 'User'}
       />
     </section>
   );

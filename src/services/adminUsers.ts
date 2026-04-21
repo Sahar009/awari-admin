@@ -62,6 +62,56 @@ export const adminUsersService = {
       data: AdminUserProfile;
     }>(`/admin/dashboard/users/${userId}/profile`, payload);
     return response.data;
+  },
+
+  async createUser(payload: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    password: string;
+    role: 'admin' | 'support_admin' | 'landlord' | 'renter' | 'hotel';
+    userType?: string;
+  }) {
+    const response = await api.post<{
+      success: boolean;
+      message: string;
+      data: {
+        user: AdminUser;
+        password: string;
+        emailSent: boolean;
+      };
+    }>('/admin/dashboard/users', payload);
+    return response.data;
+  },
+
+  async createPropertyForUser(userId: string, propertyData: any, images?: File[]) {
+    const formData = new FormData();
+
+    // Add property data to FormData
+    Object.keys(propertyData).forEach(key => {
+      if (propertyData[key] !== null && propertyData[key] !== undefined) {
+        formData.append(key, propertyData[key].toString());
+      }
+    });
+
+    // Add images to FormData
+    if (images && images.length > 0) {
+      images.forEach((image) => {
+        formData.append('images', image);
+      });
+    }
+
+    const response = await api.post<{
+      success: boolean;
+      message: string;
+      data: any;
+    }>(`/admin/dashboard/users/${userId}/properties`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
   }
 };
 

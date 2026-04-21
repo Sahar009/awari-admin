@@ -222,9 +222,374 @@ export const PropertyDetailsDrawer = ({ isOpen, property, isLoading, onClose }: 
                 </div>
               </Section>
 
-              {property?.description ? (
+              <Section title="Pricing details">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {property?.originalPrice ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Original Price</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {formatCurrency(property.originalPrice, property.currency)}
+                      </p>
+                    </div>
+                  ) : null}
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">Negotiable</p>
+                    <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                      {property?.negotiable ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                  {property?.cautionFee ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Caution Fee</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {formatCurrency(property.cautionFee, property.currency)}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.agencyFee ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Agency Fee</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {formatCurrency(property.agencyFee, property.currency)}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.legalFee ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Legal Fee</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {formatCurrency(property.legalFee, property.currency)}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.serviceCharge ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Service Charge</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {formatCurrency(property.serviceCharge, property.currency)}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              </Section>
+
+              <Section title="Property details">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {property?.bedrooms ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Bedrooms</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.bedrooms}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.bathrooms ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Bathrooms</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.bathrooms}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.toilets ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Toilets</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.toilets}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.parkingSpaces ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Parking Spaces</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.parkingSpaces}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.floorArea ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Floor Area</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.floorArea} sqm
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.landArea ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Land Area</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.landArea} sqm
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.floorNumber ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Floor Number</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.floorNumber}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.totalFloors ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Total Floors</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.totalFloors}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.yearBuilt ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Year Built</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.yearBuilt}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.conditionStatus ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Condition</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.conditionStatus.replace(/_/g, ' ')}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              </Section>
+
+              <Section title="Features & Policies">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">Pet Friendly</p>
+                    <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                      {property?.petFriendly ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">Smoking Allowed</p>
+                    <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                      {property?.smokingAllowed ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">Furnished</p>
+                    <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                      {property?.furnished ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">Instant Booking</p>
+                    <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                      {property?.instantBooking ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                  {property?.cancellationPolicy ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Cancellation Policy</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.cancellationPolicy.replace(/_/g, ' ')}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              </Section>
+
+              <Section title="Availability">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {property?.availableFrom ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Available From</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {formatDate(property.availableFrom)}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.availableUntil ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Available Until</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {formatDate(property.availableUntil)}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.minLeasePeriod ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Min Lease Period</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.minLeasePeriod} months
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.maxLeasePeriod ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Max Lease Period</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.maxLeasePeriod} months
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.minStayNights ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Min Stay Nights</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.minStayNights} night{property.minStayNights === 1 ? '' : 's'}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.maxStayNights ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Max Stay Nights</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.maxStayNights} night{property.maxStayNights === 1 ? '' : 's'}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              </Section>
+
+              <Section title="Extended location">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {property?.postalCode ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Postal Code</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.postalCode}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.neighborhood ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Neighborhood</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.neighborhood}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.landmark ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Landmark</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.landmark}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.country ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Country</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                    {property.country}
+                  </p>
+                    </div>
+                  ) : null}
+                </div>
+              </Section>
+
+              <Section title="SEO & Marketing">
+                <div className="space-y-3">
+                  {property?.tags ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Tags</p>
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {stringifyArray(property.tags).map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-full bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-200"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {property?.seoTitle ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">SEO Title</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.seoTitle}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.seoDescription ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">SEO Description</p>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        {property.seoDescription}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property?.seoKeywords ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">SEO Keywords</p>
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {stringifyArray(property.seoKeywords).map((keyword) => (
+                          <span
+                            key={keyword}
+                            className="rounded-full bg-slate-500/10 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700/40 dark:text-slate-300"
+                          >
+                            {keyword}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </Section>
+
+              <Section title="Stats">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">View Count</p>
+                    <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                      {property?.viewCount ?? 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">Favorite Count</p>
+                    <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                      {property?.favoriteCount ?? 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">Contact Count</p>
+                    <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                      {property?.contactCount ?? 0}
+                    </p>
+                  </div>
+                </div>
+              </Section>
+
+              {property?.approvedBy || property?.approvedAt ? (
+                <Section title="Approval info">
+                  {property.approvedAt ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Approved At</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {formatDate(property.approvedAt)}
+                      </p>
+                    </div>
+                  ) : null}
+                  {property.approvedBy ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Approved By</p>
+                      <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        {property.approvedBy}
+                      </p>
+                    </div>
+                  ) : null}
+                </Section>
+              ) : null}
+
+              {property?.description || property?.shortDescription ? (
                 <Section title="Description">
-                  <p className="leading-relaxed text-slate-600 dark:text-slate-300">{property.description}</p>
+                  {property?.shortDescription ? (
+                    <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+                      {property.shortDescription}
+                    </p>
+                  ) : null}
+                  {property?.description ? (
+                    <p className="leading-relaxed text-slate-600 dark:text-slate-300">{property.description}</p>
+                  ) : null}
                 </Section>
               ) : null}
 
