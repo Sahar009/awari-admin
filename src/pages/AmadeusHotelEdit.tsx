@@ -593,31 +593,50 @@ const AmadeusHotelEditPage = () => {
           {/* Images Grid */}
           {hotel.media && hotel.media.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {hotel.media.map((image, index) => (
-                <div
-                  key={image.id}
-                  className={`relative group rounded-xl overflow-hidden border-2 transition-all ${
-                    image.isPrimary 
-                      ? 'border-amber-400 shadow-lg' 
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <div className="aspect-square bg-slate-100">
-                    {image.url.startsWith('gplaces://') ? (
-                      <div className="w-full h-full flex items-center justify-center text-slate-400">
-                        <ImageIcon size={48} />
-                      </div>
-                    ) : (
-                      <img
-                        src={image.url}
-                        alt={`Hotel image ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/placeholder-hotel.jpg';
-                        }}
-                      />
-                    )}
-                  </div>
+              {hotel.media.map((image, index) => {
+                const isGooglePlaces = image.url.includes('places.googleapis.com');
+
+                return (
+                  <div
+                    key={image.id}
+                    className={`relative group rounded-xl overflow-hidden border-2 transition-all ${
+                      image.isPrimary
+                        ? 'border-amber-400 shadow-lg'
+                        : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="aspect-square bg-slate-100">
+                      {isGooglePlaces ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-amber-50">
+                          <RefreshCw size={32} className="mb-2 text-amber-500" />
+                          <span className="text-xs text-amber-600 text-center px-2">Expired - Click Refresh</span>
+                        </div>
+                      ) : image.url.startsWith('gplaces://') ? (
+                        <div className="w-full h-full flex items-center justify-center text-slate-400">
+                          <ImageIcon size={48} />
+                        </div>
+                      ) : (
+                        <img
+                          src={image.url}
+                          alt={`Hotel image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            img.style.display = 'none';
+                            const parent = img.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `
+                                <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-red-50">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-400 mb-2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                  <span class="text-xs text-red-600 text-center px-2">Failed to load</span>
+                                </div>
+                              `;
+                            }
+                          }}
+                          loading="lazy"
+                        />
+                      )}
+                    </div>
 
                   {/* Hover Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
@@ -659,7 +678,8 @@ const AmadeusHotelEditPage = () => {
                     {index + 1}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-16 bg-slate-50 rounded-xl border border-dashed border-slate-300">
