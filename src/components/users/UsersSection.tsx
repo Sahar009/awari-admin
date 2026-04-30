@@ -44,16 +44,19 @@ const roleOptions = [
 ];
 
 const extractErrorMessage = (error: unknown) => {
+  // Check if error has userMessage from axios interceptor
+  if (error && typeof error === 'object' && 'userMessage' in error) {
+    return (error as { userMessage: string }).userMessage;
+  }
+  // Fallback to extracting from response
   if (error && typeof error === 'object' && 'response' in error) {
-    const errorData = (error as { response?: { data?: { message?: string, errors?: Array<{ msg: string }> } } }).response?.data;
-
-    // Check for validation errors array
-    if (errorData?.errors && Array.isArray(errorData.errors)) {
-      return errorData.errors.map(err => err.msg).join('. ');
-    }
-
+    const errorResponse = error.response as { data?: { message?: string; error?: string } };
+    const errorData = errorResponse.data;
     if (errorData?.message) {
       return errorData.message;
+    }
+    if (errorData?.error) {
+      return errorData.error;
     }
   }
   if (error instanceof Error) {
